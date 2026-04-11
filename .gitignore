@@ -1,0 +1,8 @@
+# Files
+.env
+
+# Folders
+dist/
+node_modules/
+.tanstack/
+.gemini/
