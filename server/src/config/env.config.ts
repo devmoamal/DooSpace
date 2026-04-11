@@ -1,8 +1,6 @@
 import { logger } from "@/lib/logger";
 import { z } from "zod";
 
-const isProduction = process.env.NODE_ENV === "production";
-
 const envSchema = z.object({
   // Environment
   NODE_ENV: z
@@ -13,15 +11,7 @@ const envSchema = z.object({
   PORT: z.string().transform(Number).default(3000),
 
   // Database
-  POSTGRESQL_URL: isProduction
-    ? z.string().min(1, "POSTGRESQL_URL is required")
-    : z
-        .string()
-        .min(1)
-        .default("postgres://postgres:postgres@localhost:5432/DooSpace"),
-
-  // Redis
-  REDIS_URL: z.string().default("redis://localhost:6379"),
+  POSTGRESQL_URL: z.string().min(1, "POSTGRESQL_URL is required"),
 });
 
 const parse = envSchema.safeParse(process.env);
@@ -32,6 +22,8 @@ if (!parse.success) {
 }
 
 const env = parse.data;
+
+const isProduction = env.NODE_ENV === "production";
 const isDevelopment = env.NODE_ENV === "development";
 
 export { env, isDevelopment, isProduction };
