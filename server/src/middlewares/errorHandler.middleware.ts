@@ -1,27 +1,46 @@
-import type { Context } from "hono";
-import { AppError, BadRequestError, ValidationError } from "@/lib/error";
+import { Context } from "hono";
+import { ZodError } from "zod";
+import { AppError } from "@/lib/error";
 import { logger } from "@/lib/logger";
 import Response from "@/lib/response";
-import { ZodError } from "zod";
+import { API_ERROR_CODE } from "@doospace/shared";
+import { isDevelopment } from "@/config/env.config";
 
-export const errorHandler = (error: any, c: Context) => {
-  // Handle AppError
-  if (error instanceof AppError) {
-    logger.error(error.message);
-    return Response.error(c, error.code, error.message, error.status);
+export const errorHandler = (err: Error, c: Context) => {
+  const requestId = c.get("requestId" as any) || "unknown";
+
+  if (isDevelopment) {
+    logger.error(err);
   }
 
-  // Handle unHandled zod errors
-  if (error instanceof ZodError) {
-    throw new ValidationError();
+  // Zod Validation Error
+  if (err instanceof ZodError) {
+    const message = err.issues
+      .map((e) => `${e.path.join(".")}: ${e.message}`)
+      .join(", ");
+
+    logger.error(`[${requestId}] Validation Error: ${message}`);
+
+    return Response.error(
+      c,
+      API_ERROR_CODE.VALIDATION_ERROR,
+      `Validation failed: ${message}`,
+      400,
+    );
   }
 
-  // Handle unHandled json errors
-  if (error.message.includes("JSON")) {
-    logger.error(error.message);
-    throw new BadRequestError("Invalid JSON");
+  // Application Error
+  if (err instanceof AppError) {
+    logger.error(`[${requestId}] App Error: ${err.message}`);
+    return Response.error(c, err.code as any, err.message, err.status as any);
   }
 
-  logger.error("[CRITICAL]", error.message);
-  return Response.error(c, "SERVER_ERROR", "Internal Server Error", 500);
+  // Unexpected Error
+  logger.error(`[${requestId}] Internal Server Error:`, err);
+  return Response.error(
+    c,
+    API_ERROR_CODE.SERVER_ERROR,
+    "An unexpected error occurred",
+    500,
+  );
 };
