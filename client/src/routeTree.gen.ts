@@ -9,27 +9,208 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as StorageRouteImport } from './routes/storage'
+import { Route as RequestsRouteImport } from './routes/requests'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as DooRouteImport } from './routes/doo'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as DooIndexRouteImport } from './routes/doo/index'
+import { Route as DooIdRouteImport } from './routes/doo/$id'
 
-export interface FileRoutesByFullPath {}
-export interface FileRoutesByTo {}
+const StorageRoute = StorageRouteImport.update({
+  id: '/storage',
+  path: '/storage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RequestsRoute = RequestsRouteImport.update({
+  id: '/requests',
+  path: '/requests',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DooRoute = DooRouteImport.update({
+  id: '/doo',
+  path: '/doo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DooIndexRoute = DooIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DooRoute,
+} as any)
+const DooIdRoute = DooIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => DooRoute,
+} as any)
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/doo': typeof DooRouteWithChildren
+  '/login': typeof LoginRoute
+  '/requests': typeof RequestsRoute
+  '/storage': typeof StorageRoute
+  '/doo/$id': typeof DooIdRoute
+  '/doo/': typeof DooIndexRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
+  '/requests': typeof RequestsRoute
+  '/storage': typeof StorageRoute
+  '/doo/$id': typeof DooIdRoute
+  '/doo': typeof DooIndexRoute
+}
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/doo': typeof DooRouteWithChildren
+  '/login': typeof LoginRoute
+  '/requests': typeof RequestsRoute
+  '/storage': typeof StorageRoute
+  '/doo/$id': typeof DooIdRoute
+  '/doo/': typeof DooIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: never
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/doo'
+    | '/login'
+    | '/requests'
+    | '/storage'
+    | '/doo/$id'
+    | '/doo/'
   fileRoutesByTo: FileRoutesByTo
-  to: never
-  id: '__root__'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/requests'
+    | '/storage'
+    | '/doo/$id'
+    | '/doo'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/doo'
+    | '/login'
+    | '/requests'
+    | '/storage'
+    | '/doo/$id'
+    | '/doo/'
   fileRoutesById: FileRoutesById
 }
-export interface RootRouteChildren {}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRoute
+  DooRoute: typeof DooRouteWithChildren
+  LoginRoute: typeof LoginRoute
+  RequestsRoute: typeof RequestsRoute
+  StorageRoute: typeof StorageRoute
 }
 
-const rootRouteChildren: RootRouteChildren = {}
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/storage': {
+      id: '/storage'
+      path: '/storage'
+      fullPath: '/storage'
+      preLoaderRoute: typeof StorageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/requests': {
+      id: '/requests'
+      path: '/requests'
+      fullPath: '/requests'
+      preLoaderRoute: typeof RequestsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/doo': {
+      id: '/doo'
+      path: '/doo'
+      fullPath: '/doo'
+      preLoaderRoute: typeof DooRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/doo/': {
+      id: '/doo/'
+      path: '/'
+      fullPath: '/doo/'
+      preLoaderRoute: typeof DooIndexRouteImport
+      parentRoute: typeof DooRoute
+    }
+    '/doo/$id': {
+      id: '/doo/$id'
+      path: '/$id'
+      fullPath: '/doo/$id'
+      preLoaderRoute: typeof DooIdRouteImport
+      parentRoute: typeof DooRoute
+    }
+  }
+}
+
+interface DooRouteChildren {
+  DooIdRoute: typeof DooIdRoute
+  DooIndexRoute: typeof DooIndexRoute
+}
+
+const DooRouteChildren: DooRouteChildren = {
+  DooIdRoute: DooIdRoute,
+  DooIndexRoute: DooIndexRoute,
+}
+
+const DooRouteWithChildren = DooRoute._addFileChildren(DooRouteChildren)
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  DashboardRoute: DashboardRoute,
+  DooRoute: DooRouteWithChildren,
+  LoginRoute: LoginRoute,
+  RequestsRoute: RequestsRoute,
+  StorageRoute: StorageRoute,
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()

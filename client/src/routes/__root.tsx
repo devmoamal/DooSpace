@@ -9,7 +9,9 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <div className="h-screen w-full bg-bg text-text selection:bg-brand selection:text-white transition-colors duration-300 font-sans flex flex-col overflow-hidden">
+        <Outlet />
+      </div>
     </QueryClientProvider>
   );
 }
