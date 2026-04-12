@@ -28,3 +28,46 @@ export type ErrorResponse = ApiResponse & {
  * API error codes
  */
 export type ErrorCode = (typeof API_ERROR_CODE)[keyof typeof API_ERROR_CODE];
+
+/**
+ * Overview Statistics
+ */
+export interface OverviewStats {
+  doos: {
+    total: number;
+    active: number;
+    inactive: number;
+  };
+  requests: {
+    total: number;
+    today: number;
+    yesterday: number;
+    trend: number; // percentage
+    successRate: number; // percentage
+  };
+  storage: {
+    totalKeys: number;
+    totalBytes: number;
+    formattedSize: string;
+  };
+}
+
+/**
+ * Chart Data Point
+ */
+export interface ChartDataPoint {
+  date: string;
+  count: number;
+  [key: string]: any; // Allow for dynamic doo names
+}
+
+/**
+ * Storage Usage per Doo
+ */
+export interface DooStorageUsage {
+  dooId: number;
+  dooName: string;
+  keyCount: number;
+  sizeBytes: number;
+  formattedSize: string;
+}
