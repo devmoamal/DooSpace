@@ -8,10 +8,14 @@ const envSchema = z.object({
     .default("development"),
 
   // Server
-  PORT: z.string().transform(Number).default(3000),
+  PORT: z.coerce.number().default(3000),
 
   // Database
   POSTGRESQL_URL: z.string().min(1, "POSTGRESQL_URL is required"),
+
+  // JWT
+  JWT_SECRET: z.string().min(1, "JWT_SECRET is required"),
+  JWT_REFRESH_SECRET: z.string().min(1, "JWT_REFRESH_SECRET is required"),
 });
 
 const parse = envSchema.safeParse(process.env);

@@ -1,11 +1,11 @@
-import type { ErrorCode } from "@DooSpace/shared";
+import type { ErrorCode } from "@doospace/shared";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 
 export class AppError extends Error {
   constructor(
     message: string,
     public readonly status: ContentfulStatusCode = 500,
-    public readonly code: ErrorCode = "UNKNOWN",
+    public readonly code: ErrorCode = "SERVER_ERROR",
   ) {
     super(message);
   }
@@ -29,7 +29,7 @@ export class ValidationError extends AppError {
   }
 }
 
-export class AuthorizationError extends AppError {
+export class UnauthorizedError extends AppError {
   constructor(message?: string) {
     super(message ? message : "Unauthorized", 401, "UNAUTHORIZED");
   }
