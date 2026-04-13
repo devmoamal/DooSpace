@@ -22,4 +22,8 @@ export class Storage {
   async list() {
     return await storageRepository.list(this.dooId);
   }
+
+  async clear() {
+    await storageRepository.clear(this.dooId);
+  }
 }

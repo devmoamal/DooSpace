@@ -67,6 +67,12 @@ export class StorageRepository {
       );
   }
 
+  async clear(dooId: number): Promise<void> {
+    await db
+      .delete(storageTable)
+      .where(eq(storageTable.doo_id, dooId));
+  }
+
   async deleteExpired(): Promise<number> {
     const result = await db
       .delete(storageTable)
