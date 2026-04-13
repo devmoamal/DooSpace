@@ -45,7 +45,7 @@ export interface OverviewStats {
     trend: number; // percentage
     successRate: number; // percentage
   };
-  storage: {
+  doobox: {
     totalKeys: number;
     totalBytes: number;
     formattedSize: string;
@@ -62,9 +62,9 @@ export interface ChartDataPoint {
 }
 
 /**
- * Storage Usage per Doo
+ * DooBox Usage per Doo
  */
-export interface DooStorageUsage {
+export interface DooBoxUsage {
   dooId: number;
   dooName: string;
   keyCount: number;
