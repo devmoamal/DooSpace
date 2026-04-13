@@ -7,6 +7,7 @@ export interface DooRequest<T = any> {
   method: string;
   headers: Headers;
   params: Record<string, string>;
+  query: Record<string, string>;
   body: T;
 }
 
@@ -81,6 +82,14 @@ export class Doo {
     this.canvas.set(x, y, color);
   }
 
+  fill(color: string) {
+    this.canvas.fill(color);
+  }
+
+  rect(x: number, y: number, w: number, h: number, color: string) {
+    this.canvas.rect(x, y, w, h, color);
+  }
+
   // Response Helpers
   json(data: any, status: number = 200): Response {
     return new Response(JSON.stringify(data), {
@@ -96,14 +105,22 @@ export class Doo {
     });
   }
 
-  log(message: string) {
+  log(message: any) {
     const timestamp = new Date().toISOString();
-    this.logs.push(`[${timestamp}] ${message}`);
+    const formattedMessage =
+      typeof message === "object"
+        ? JSON.stringify(message, null, 2)
+        : String(message);
+    this.logs.push(`[${timestamp}] ${formattedMessage}`);
   }
 
-  error(message: string) {
+  error(message: any) {
     const timestamp = new Date().toISOString();
-    this.logs.push(`[${timestamp}] ERROR: ${message}`);
+    const formattedMessage =
+      typeof message === "object"
+        ? JSON.stringify(message, null, 2)
+        : String(message);
+    this.logs.push(`[${timestamp}] ERROR: ${formattedMessage}`);
   }
 
   async run(method: string, path: string, request: Request): Promise<Response> {
@@ -115,6 +132,13 @@ export class Doo {
         const params: Record<string, string> = {};
         route.keys.forEach((key, i) => {
           params[key] = match[i + 1];
+        });
+
+        // Parse query params
+        const url = new URL(request.url);
+        const query: Record<string, string> = {};
+        url.searchParams.forEach((value, key) => {
+          query[key] = value;
         });
 
         // Parse body if it's JSON
@@ -130,6 +154,7 @@ export class Doo {
         // Create a safe, mutable request context instead of mutating the frozen standard Request object
         const dooReq: DooRequest = {
           params,
+          query,
           body,
           url: request.url,
           method: request.method,
