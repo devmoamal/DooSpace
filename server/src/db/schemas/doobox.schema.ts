@@ -8,8 +8,8 @@ import {
 } from "drizzle-orm/pg-core";
 import { doosTable } from "./doos.schema";
 
-export const storageTable = pgTable(
-  "storage",
+export const dooboxTable = pgTable(
+  "doobox",
   {
     id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
     doo_id: integer("doo_id")
@@ -18,7 +18,8 @@ export const storageTable = pgTable(
     key: text("key").notNull(),
     value: jsonb("value").notNull(),
     expire_at: timestamp("expire_at"),
+    created_at: timestamp("created_at").defaultNow().notNull(),
     updated_at: timestamp("updated_at").defaultNow().notNull(),
   },
-  (table) => [uniqueIndex("doo_key_idx").on(table.doo_id, table.key)],
+  (table) => [uniqueIndex("doobox_key_idx").on(table.doo_id, table.key)],
 );

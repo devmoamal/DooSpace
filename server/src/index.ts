@@ -1,7 +1,7 @@
 import { app } from "@/app";
 import { env } from "@/config/env.config";
 import { logger } from "@/lib/logger";
-import { storageWorker } from "@/workers/storage.worker";
+import { dooboxWorker } from "@/workers/doobox.worker";
 
 const server = {
   port: env.PORT,
@@ -9,14 +9,14 @@ const server = {
 };
 
 // Start Background Workers
-storageWorker.start();
+dooboxWorker.start();
 
 logger.info(`Server running on port ${env.PORT} [${env.NODE_ENV}]`);
 
 // Graceful shutdown
 const shutdown = () => {
   logger.info("Shutdown signal received. Closing server...");
-  storageWorker.stop();
+  dooboxWorker.stop();
   process.exit(0);
 };
 
