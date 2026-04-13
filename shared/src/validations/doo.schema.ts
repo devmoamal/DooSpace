@@ -13,6 +13,8 @@ export const MethodSchema = z.enum([
 export const EndpointSchema = z.object({
   method: MethodSchema,
   path: z.string().min(1),
+  request_type: z.string().optional(),
+  response_type: z.string().optional(),
 });
 
 export const DooSchema = z.object({
