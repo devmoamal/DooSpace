@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
-import { cn } from "@/lib/cn";
 import { Textarea } from "@/components/ui/Textarea";
 import { useDooForm } from "@/hooks/useDooForm";
 import { type Doo } from "@doospace/shared";
+import { cn } from "@/lib/cn";
 
 interface EditDooModalProps {
   isOpen: boolean;
@@ -14,13 +14,9 @@ interface EditDooModalProps {
 
 export function EditDooModal({ isOpen, onClose, doo }: EditDooModalProps) {
   const {
-    name,
-    setName,
-    description,
-    setDescription,
-    error,
-    isPending,
-    handleSubmit,
+    name, setName,
+    description, setDescription,
+    error, isPending, handleSubmit,
   } = useDooForm({
     mode: "edit",
     initialData: doo,
@@ -31,24 +27,24 @@ export function EditDooModal({ isOpen, onClose, doo }: EditDooModalProps) {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Edit Doo Settings"
-      subtitle="Update the name and description of this automated logic Doo."
+      title="Edit Doo"
+      subtitle="Update name and description."
       maxWidth="lg"
     >
       <form onSubmit={handleSubmit} className="flex flex-col">
         {error && (
-          <div className="mb-6 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 text-xs font-medium text-center">
+          <p className="mb-4 px-3 py-2 border border-red-500/20 rounded text-red-500 text-[11px] font-mono bg-red-500/5">
             {error}
-          </div>
+          </p>
         )}
 
-        <div className="flex flex-col">
+        <div className="space-y-1">
           <Input
             label="Name"
             placeholder="Name your Doo"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            helperText="What should we call this automated logic?"
+            helperText="Identifier for this logic unit"
             horizontal
             autoFocus
             required
@@ -59,29 +55,22 @@ export function EditDooModal({ isOpen, onClose, doo }: EditDooModalProps) {
             placeholder="What does this Doo do?"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            helperText="Optional context for your team members."
+            helperText="Optional context"
             horizontal
           />
         </div>
 
-        <div className="flex items-center justify-between gap-3 pt-4 border-t border-border/40 mt-4">
-          <Button
-            type="button"
-            variant="secondary"
-            className="px-6 h-10"
-            onClick={onClose}
-          >
+        <div className="flex items-center justify-end gap-2 pt-4 border-t border-border mt-4">
+          <Button type="button" variant="ghost" size="sm" onClick={onClose}>
             Cancel
           </Button>
           <Button
             type="submit"
-            className={cn(
-              "px-8 h-10 transition-all",
-              isPending && "opacity-50 cursor-not-allowed",
-            )}
+            size="sm"
+            className={cn(isPending && "opacity-50 cursor-not-allowed")}
             disabled={isPending}
           >
-            {isPending ? "Saving..." : "Save Changes"}
+            {isPending ? "Saving…" : "Save"}
           </Button>
         </div>
       </form>

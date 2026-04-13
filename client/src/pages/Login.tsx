@@ -19,105 +19,65 @@ export const LoginPage: React.FC = () => {
     setError("");
     try {
       const res = await authService.login({ username, password });
-      if ((res as any).ok) {
-        navigate({ to: "/doo" });
-      }
+      if ((res as any).ok) navigate({ to: "/doo" });
     } catch (err: any) {
-      setError(err?.message || "Failed to login");
+      setError(err?.message || "Invalid credentials");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-bg flex flex-col items-center justify-center p-6 sm:p-12 relative overflow-hidden">
-      {/* Background decoration - subtle emerald glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-brand/5 blur-[120px] rounded-full pointer-events-none" />
-
-      <div className="w-full max-w-[400px] space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <header className="text-center space-y-6">
-          <div className="flex justify-center">
-            <div className="p-3 bg-brand/5 border border-brand/20 rounded-xl text-brand transition-all hover:scale-105 duration-300">
-              <Box size={32} />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <h1 className="text-2xl font-semibold tracking-tight text-text">
-              Welcome to DooSpace
-            </h1>
-            <p className="text-sm text-text-muted font-medium">
-              Identify yourself to access the orchestrator.
-            </p>
-          </div>
-        </header>
-
-        <div className="bg-surface/50 border border-border p-8 rounded-xl shadow-2xl space-y-6">
-          <form onSubmit={handleLogin} className="space-y-4">
-            {error && (
-              <div className="px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 text-[11px] font-bold text-center uppercase tracking-widest animate-in fade-in zoom-in-95">
-                {error}
-              </div>
-            )}
-
-            <Input
-              label="Username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="e.g. admin_Doo"
-              required
-              className="bg-bg"
-            />
-
-            <Input
-              label="Password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-              className="bg-bg"
-            />
-
-            <div className="pt-2">
-              <Button
-                type="submit"
-                className={cn(
-                  "w-full h-10 rounded-md text-sm font-bold bg-brand text-bg hover:bg-brand/90 transition-all active:scale-[0.98] shadow-lg shadow-brand/10",
-                  loading && "opacity-50 cursor-not-allowed",
-                )}
-                disabled={loading}
-              >
-                {loading ? "AUTHENTICATING..." : "SIGN IN"}
-              </Button>
-            </div>
-          </form>
-
-          <div className="relative">
-            <div
-              className="absolute inset-0 flex items-center"
-              aria-hidden="true"
-            >
-              <div className="w-full border-t border-border"></div>
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-bg px-2 text-text-muted/40 font-bold tracking-widest">
-                or
-              </span>
-            </div>
-          </div>
-
-          <Button
-            variant="outline"
-            className="w-full h-10 text-xs font-bold gap-3 uppercase tracking-widest text-text-muted/60 hover:text-text"
-          >
-            Request Access
-          </Button>
+    <div className="min-h-screen bg-bg flex flex-col items-center justify-center p-6">
+      <div className="w-full max-w-[340px] space-y-7">
+        {/* Logo */}
+        <div className="flex items-center gap-2">
+          <Box size={18} className="text-brand" />
+          <span className="font-semibold text-[14px] text-text">DooSpace</span>
         </div>
 
-        <footer className="text-center text-[10px] font-bold uppercase tracking-[0.3em] text-text-muted/20">
-          Orchestration Doo Management
-        </footer>
+        {/* Heading */}
+        <div>
+          <h1 className="text-[15px] font-semibold text-text">Sign in</h1>
+          <p className="text-[12px] text-text-muted mt-0.5">
+            Access your orchestration workspace
+          </p>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleLogin} className="space-y-4">
+          {error && (
+            <p className="text-[11px] font-mono text-red-500 border border-red-500/20 rounded px-3 py-2 bg-red-500/5">
+              {error}
+            </p>
+          )}
+
+          <Input
+            label="Username"
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="your username"
+            required
+          />
+
+          <Input
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            required
+          />
+
+          <Button
+            type="submit"
+            className={cn("w-full h-9", loading && "opacity-50 cursor-not-allowed")}
+            disabled={loading}
+          >
+            {loading ? "Signing in..." : "Sign in"}
+          </Button>
+        </form>
       </div>
     </div>
   );
