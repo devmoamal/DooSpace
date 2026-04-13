@@ -9,20 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as StorageRouteImport } from './routes/storage'
 import { Route as RequestsRouteImport } from './routes/requests'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as DooboxRouteImport } from './routes/doobox'
 import { Route as DooRouteImport } from './routes/doo'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DooIndexRouteImport } from './routes/doo/index'
 import { Route as DooIdRouteImport } from './routes/doo/$id'
 
-const StorageRoute = StorageRouteImport.update({
-  id: '/storage',
-  path: '/storage',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const RequestsRoute = RequestsRouteImport.update({
   id: '/requests',
   path: '/requests',
@@ -31,6 +26,11 @@ const RequestsRoute = RequestsRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DooboxRoute = DooboxRouteImport.update({
+  id: '/doobox',
+  path: '/doobox',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DooRoute = DooRouteImport.update({
@@ -63,18 +63,18 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/doo': typeof DooRouteWithChildren
+  '/doobox': typeof DooboxRoute
   '/login': typeof LoginRoute
   '/requests': typeof RequestsRoute
-  '/storage': typeof StorageRoute
   '/doo/$id': typeof DooIdRoute
   '/doo/': typeof DooIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/doobox': typeof DooboxRoute
   '/login': typeof LoginRoute
   '/requests': typeof RequestsRoute
-  '/storage': typeof StorageRoute
   '/doo/$id': typeof DooIdRoute
   '/doo': typeof DooIndexRoute
 }
@@ -83,9 +83,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/doo': typeof DooRouteWithChildren
+  '/doobox': typeof DooboxRoute
   '/login': typeof LoginRoute
   '/requests': typeof RequestsRoute
-  '/storage': typeof StorageRoute
   '/doo/$id': typeof DooIdRoute
   '/doo/': typeof DooIndexRoute
 }
@@ -95,18 +95,18 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/doo'
+    | '/doobox'
     | '/login'
     | '/requests'
-    | '/storage'
     | '/doo/$id'
     | '/doo/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/dashboard'
+    | '/doobox'
     | '/login'
     | '/requests'
-    | '/storage'
     | '/doo/$id'
     | '/doo'
   id:
@@ -114,9 +114,9 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/doo'
+    | '/doobox'
     | '/login'
     | '/requests'
-    | '/storage'
     | '/doo/$id'
     | '/doo/'
   fileRoutesById: FileRoutesById
@@ -125,20 +125,13 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   DooRoute: typeof DooRouteWithChildren
+  DooboxRoute: typeof DooboxRoute
   LoginRoute: typeof LoginRoute
   RequestsRoute: typeof RequestsRoute
-  StorageRoute: typeof StorageRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/storage': {
-      id: '/storage'
-      path: '/storage'
-      fullPath: '/storage'
-      preLoaderRoute: typeof StorageRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/requests': {
       id: '/requests'
       path: '/requests'
@@ -151,6 +144,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/doobox': {
+      id: '/doobox'
+      path: '/doobox'
+      fullPath: '/doobox'
+      preLoaderRoute: typeof DooboxRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/doo': {
@@ -207,9 +207,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   DooRoute: DooRouteWithChildren,
+  DooboxRoute: DooboxRoute,
   LoginRoute: LoginRoute,
   RequestsRoute: RequestsRoute,
-  StorageRoute: StorageRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

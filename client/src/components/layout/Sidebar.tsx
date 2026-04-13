@@ -35,7 +35,7 @@ const sidebarItems = [
     badge: "3",
     badgeColor: "bg-text text-bg",
   },
-  { icon: Database, label: "Storage", href: "/storage", section: "WORKSPACE" },
+  { icon: Database, label: "DooBox", href: "/doobox", section: "WORKSPACE" },
   {
     icon: ShieldAlert,
     label: "Secrets",

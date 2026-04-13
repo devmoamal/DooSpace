@@ -26,9 +26,9 @@ export const QUERY_KEYS = {
     LIST: (params: any) => ["requests", "list", params] as const,
     LOGS: (dooId: number) => ["requests", "logs", dooId] as const,
   },
-  STORAGE: {
-    USAGE: ["storage", "usage"] as const,
-    DETAIL: (dooId: number) => ["storage", "detail", dooId] as const,
+  DOOBOX: {
+    USAGE: ["doobox", "usage"] as const,
+    DETAIL: (dooId: number) => ["doobox", "detail", dooId] as const,
   },
   OVERVIEW: {
     STATS: ["overview", "stats"] as const,
