@@ -1,6 +1,6 @@
 import { type Method } from "@doospace/shared";
 import { Canvas } from "./canvas";
-import { Storage } from "./storage";
+import { DooBox } from "./doobox";
 
 export interface DooRequest<T = any> {
   url: string;
@@ -26,11 +26,11 @@ export class Doo {
   private routes: Route[] = [];
   public logs: string[] = [];
   public canvas: Canvas;
-  public db: Storage;
+  public doobox: DooBox;
 
   constructor(dooId: number) {
     this.canvas = new Canvas();
-    this.db = new Storage(dooId);
+    this.doobox = new DooBox(dooId);
   }
 
   get<TResponse = any>(path: string, handler: Handler<TResponse, any>) {

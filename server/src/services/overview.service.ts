@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { doosTable, requestsTable, storageTable } from "@/db/schemas";
+import { doosTable, requestsTable, dooboxTable } from "@/db/schemas";
 import { count, eq, and, gte, lt, sql } from "drizzle-orm";
 import { type OverviewStats, type ChartDataPoint } from "@doospace/shared";
 
@@ -17,7 +17,7 @@ export class OverviewService {
       successRequests,
       todayRequests,
       yesterdayRequests,
-      storageStats,
+      dooboxStats,
     ] = await Promise.all([
       db.select({ value: count() }).from(doosTable),
       db.select({ value: count() }).from(doosTable).where(eq(doosTable.is_active, true)),
@@ -31,8 +31,8 @@ export class OverviewService {
       ),
       db.select({ 
         totalKeys: count(),
-        totalBytes: sql<number>`COALESCE(SUM(OCTET_LENGTH(${storageTable.value}::TEXT)), 0)`
-      }).from(storageTable),
+        totalBytes: sql<number>`COALESCE(SUM(OCTET_LENGTH(${dooboxTable.value}::TEXT)), 0)`
+      }).from(dooboxTable),
     ]);
 
     const totalCount = totalRequests[0].value;
@@ -49,7 +49,7 @@ export class OverviewService {
     }
 
     const successRate = totalCount > 0 ? (successCount / totalCount) * 100 : 100;
-    const bytes = Number(storageStats[0].totalBytes);
+    const bytes = Number(dooboxStats[0].totalBytes);
 
     return {
       doos: {
@@ -64,8 +64,8 @@ export class OverviewService {
         trend: Math.round(trend * 10) / 10,
         successRate: Math.round(successRate * 10) / 10,
       },
-      storage: {
-        totalKeys: storageStats[0].totalKeys,
+      doobox: {
+        totalKeys: dooboxStats[0].totalKeys,
         totalBytes: bytes,
         formattedSize: this.formatBytes(bytes),
       },
