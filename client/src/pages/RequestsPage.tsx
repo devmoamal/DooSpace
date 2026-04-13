@@ -5,10 +5,12 @@ import { DooAvatar } from "@/components/ui/DooAvatar";
 import { useRequestsQuery } from "@/hooks/queries/useRequests";
 import { useDoosQuery } from "@/hooks/queries/useDoos";
 import { RequestsTable } from "@/components/requests/RequestsTable";
+import { RequestDetailsDrawer } from "@/components/requests/RequestDetailsDrawer";
 import { PAGINATION } from "@/constants";
 
 export function RequestsPage() {
   const [page, setPage] = useState(1);
+  const [selectedRequest, setSelectedRequest] = useState<any | null>(null);
   const limit = 12; // Standard for this view
 
   const { data: requestsRes, isLoading } = useRequestsQuery({ page, limit });
@@ -63,8 +65,19 @@ export function RequestsPage() {
 
 
       <main className="flex-1 p-8 flex flex-col min-h-0 overflow-hidden">
-        <RequestsTable requests={requests} getDooName={getDooName} />
+        <RequestsTable 
+          requests={requests} 
+          getDooName={getDooName} 
+          onSelect={setSelectedRequest}
+          selectedId={selectedRequest?.id}
+        />
       </main>
+
+      <RequestDetailsDrawer 
+        request={selectedRequest}
+        onClose={() => setSelectedRequest(null)}
+        getDooName={getDooName}
+      />
 
       {/* Pagination Controls */}
       {meta && meta.lastPage > 1 && (
