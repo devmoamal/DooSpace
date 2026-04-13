@@ -72,11 +72,11 @@ export function DashboardPage() {
                 className="cursor-pointer"
               />
             </Link>
-            <Link to="/storage">
+            <Link to="/doobox">
               <StatsCard
-                label="Storage"
-                value={stats?.storage?.formattedSize || "0 B"}
-                Doo={String(stats?.storage?.totalKeys || 0) + " keys"}
+                label="DooBox"
+                value={stats?.doobox?.formattedSize || "0 B"}
+                Doo={String(stats?.doobox?.totalKeys || 0) + " items"}
                 icon={<Database size={20} />}
                 className="cursor-pointer"
               />

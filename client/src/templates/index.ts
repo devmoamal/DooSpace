@@ -24,7 +24,7 @@ export const DOO_TEMPLATES: DooTemplate[] = [
   {
     id: "database",
     name: "User Database",
-    description: "CRUD patterns with typed requests and structured storage.",
+    description: "CRUD patterns with typed requests and structured DooBox.",
     icon: Database,
     code: database
   },

@@ -148,21 +148,11 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
             range,
           },
           {
-            label: "doo.webhook",
-            kind: monaco.languages.CompletionItemKind.Snippet,
-            documentation: "Generate a robust Webhook handler",
-            insertText:
-              'doo.post("/webhook", async (req) => {\n  const { event, data } = req.body;\n  doo.log(`Received event: \\${event}`);\n  \n  await doo.db.set(`event_\\${Date.now()}`, data);\n  \n  return doo.json({ received: true }, 200);\n});',
-            insertTextRules:
-              monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-            range,
-          },
-          {
-            label: "doo.db.list",
+            label: "doo.doobox.list",
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: "List and return all stored items",
             insertText:
-              'doo.get("/db", async () => {\n  const keys = await doo.db.list();\n  const items = await Promise.all(\n    keys.map(async (k) => ({ key: k, value: await doo.db.get(k) }))\n  );\n  return items;\n});',
+              'doo.get("/doobox", async () => {\n  const keys = await doo.doobox.list();\n  const items = await Promise.all(\n    keys.map(async (k) => ({ key: k, value: await doo.doobox.get(k) }))\n  );\n  return items;\n});',
             insertTextRules:
               monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
             range,
@@ -216,19 +206,19 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
             range,
           },
           {
-            label: "doo.db.get",
+            label: "doo.doobox.get",
             kind: monaco.languages.CompletionItemKind.Snippet,
-            documentation: "Load a value from storage",
-            insertText: 'const ${1:data} = await doo.db.get("${2:key}");',
+            documentation: "Load a value from DooBox storage",
+            insertText: 'const ${1:data} = await doo.doobox.get("${2:key}");',
             insertTextRules:
               monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
             range,
           },
           {
-            label: "doo.db.set",
+            label: "doo.doobox.set",
             kind: monaco.languages.CompletionItemKind.Snippet,
-            documentation: "Persist a value to storage",
-            insertText: 'await doo.db.set("${1:key}", ${2:value});',
+            documentation: "Persist a value to DooBox storage",
+            insertText: 'await doo.doobox.set("${1:key}", ${2:value});',
             insertTextRules:
               monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
             range,

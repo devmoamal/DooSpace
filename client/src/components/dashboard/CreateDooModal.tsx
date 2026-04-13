@@ -47,27 +47,6 @@ export function CreateDooModal({ isOpen, onClose }: CreateDooModalProps) {
 
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-1">
-            <Select
-              label="Blueprint"
-              value={selectedTemplate.id}
-              onChange={(e) => {
-                const template = DOO_TEMPLATES.find((t) => t.id === e.target.value);
-                if (template) setSelectedTemplate(template);
-              }}
-              helperText={selectedTemplate.description}
-              horizontal
-            >
-              {DOO_TEMPLATES.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                </option>
-              ))}
-            </Select>
-          </div>
-
-          <div className="h-px bg-border/40 w-full" />
-
-          <div className="flex flex-col gap-1">
             <Input
               label="Doo Name"
               placeholder="e.g. User Management Engine"
@@ -87,6 +66,27 @@ export function CreateDooModal({ isOpen, onClose }: CreateDooModalProps) {
               helperText="Brief context for easier system orchestration."
               horizontal
             />
+          </div>
+
+          <div className="h-px bg-border/40 w-full" />
+
+          <div className="flex flex-col gap-1">
+            <Select
+              label="Blueprint"
+              value={selectedTemplate.id}
+              onChange={(e) => {
+                const template = DOO_TEMPLATES.find((t) => t.id === e.target.value);
+                if (template) setSelectedTemplate(template);
+              }}
+              helperText={selectedTemplate.description}
+              horizontal
+            >
+              {DOO_TEMPLATES.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                </option>
+              ))}
+            </Select>
           </div>
         </div>
 

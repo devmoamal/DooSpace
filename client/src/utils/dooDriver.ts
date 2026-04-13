@@ -14,10 +14,10 @@ export const DOO_TYPES = `
      */
     export interface Doo {
       /**
-       * **Key-Value Storage**
+       * **DooBox Key-Value Storage**
        * Persist data across executions. Each Doo unit has its own private storage.
        */
-      db: DooStorage;
+      doobox: DooBox;
       
       /**
        * **24x24 Visual Canvas**
@@ -47,11 +47,11 @@ export const DOO_TYPES = `
        * Register a POST endpoint.
        * 
        * @param path The route path
-       * @param handler Function to handle the request. Access the body via req.body.
+       * @handler Function to handle the request. Access the body via req.body.
        * @example
        * doo.post("/submit", async (req) => {
        *   const data = req.body;
-       *   await doo.db.set("last_submission", data);
+       *   await doo.doobox.set("last_submission", data);
        *   return { success: true };
        * });
        */
@@ -137,9 +137,9 @@ export const DOO_TYPES = `
     }
 
     /**
-     * Key-Value storage interface.
+     * DooBox Key-Value storage interface.
      */
-    export interface DooStorage {
+    export interface DooBox {
       /**
        * Retrieve a value by key.
        * @template T The expected type of the value
