@@ -14,6 +14,7 @@ const COLOR_MAP: Record<string, string> = {
   transparent: "bg-transparent",
 };
 
+
 export const DooAvatar: React.FC<DooAvatarProps> = ({
   id,
   size = 40,

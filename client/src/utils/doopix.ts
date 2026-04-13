@@ -2,8 +2,6 @@ export const generateDooAvatar = (id: number): string[][] => {
   const seed = id * 1337; // Shift seed
   const matrix: string[][] = [];
 
-  // Colors defined in the "App Style" palette
-  const colors = ["sage", "sage-muted", "transparent"];
 
   for (let y = 0; y < 5; y++) {
     const row: string[] = [];
