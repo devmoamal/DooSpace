@@ -1,4 +1,4 @@
-import { Hash } from "lucide-react";
+import { Hash, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { type Endpoint } from "@doospace/shared";
 
@@ -37,24 +37,48 @@ export function EndpointsPanel({
                   return (
                     <div
                       key={i}
-                      className="group flex items-center gap-3 px-4 py-2.5 hover:bg-surface-lighter/50 transition-colors cursor-default"
+                      className="group flex flex-col px-4 py-3 hover:bg-surface-lighter/50 transition-colors cursor-default border-b border-border/10 last:border-0"
                     >
-                      <span
-                        className={cn(
-                          "w-10 text-center text-[8px] font-black px-1.5 py-0.5 rounded-md border leading-none uppercase tracking-tighter shrink-0",
-                          method === "GET"
-                            ? "bg-emerald-500/5 text-emerald-600 border-emerald-500/10"
-                            : method === "POST"
-                              ? "bg-blue-500/5 text-blue-600 border-blue-500/10"
-                              : "bg-amber-500/5 text-amber-600 border-amber-500/10",
-                        )}
-                      >
-                        {method}
-                      </span>
+                      <div className="flex items-center gap-3 mb-1.5">
+                        <span
+                          className={cn(
+                            "w-10 text-center text-[8px] font-black px-1.5 py-0.5 rounded-md border leading-none uppercase tracking-tighter shrink-0",
+                            method === "GET"
+                              ? "bg-emerald-500/5 text-emerald-600 border-emerald-500/10"
+                              : method === "POST"
+                                ? "bg-blue-500/5 text-blue-600 border-blue-500/10"
+                                : "bg-amber-500/5 text-amber-600 border-amber-500/10",
+                          )}
+                        >
+                          {method}
+                        </span>
 
-                      <span className="flex-1 font-mono text-[11px] text-text/80 truncate tracking-tight">
-                        {path}
-                      </span>
+                        <span className="flex-1 font-mono text-[11px] text-text/80 truncate tracking-tight font-medium">
+                          {path}
+                        </span>
+                      </div>
+
+                      {(ep.request_type || ep.response_type) && (
+                        <div className="flex items-center gap-1.5 ml-0 sm:ml-[44px]">
+                          {ep.request_type ? (
+                            <span className="text-[9px] font-mono text-text/40 bg-text/5 px-1.5 py-0.5 rounded border border-border/20 truncate max-w-[120px]">
+                              {ep.request_type}
+                            </span>
+                          ) : (
+                            <span className="text-[9px] font-mono text-text/20 italic">any</span>
+                          )}
+                          
+                          <ArrowRight size={8} className="text-text/20 shrink-0" />
+                          
+                          {ep.response_type ? (
+                            <span className="text-[9px] font-mono text-brand/60 bg-brand/5 px-1.5 py-0.5 rounded border border-brand/10 truncate max-w-[120px]">
+                              {ep.response_type}
+                            </span>
+                          ) : (
+                            <span className="text-[9px] font-mono text-text/20 italic">any</span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -67,7 +91,7 @@ export function EndpointsPanel({
                 <p className="text-[10px] text-text/30 text-center leading-relaxed">
                   No endpoints detected. <br />
                   Define one using{" "}
-                  <code className="text-brand/50 px-1">ctx.get()</code>
+                  <code className="text-brand/50 px-1">doo.get()</code>
                 </p>
               </div>
             )}
