@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Database } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -12,105 +12,55 @@ interface AddRecordModalProps {
   dooId: number;
 }
 
-export function AddRecordModal({
-  isOpen,
-  onClose,
-  dooId,
-}: AddRecordModalProps) {
+export function AddRecordModal({ isOpen, onClose, dooId }: AddRecordModalProps) {
   const [key, setKey] = useState("");
   const [value, setValue] = useState("");
-  const [isValid, setIsValid] = useState(true);
   const setKeyMutation = useSetDooBoxKeyMutation();
 
-  const handleTextChange = (val: string) => {
-    setValue(val);
-    setIsValid(true); // Always valid now, as we fallback to text
-  };
-
   const handleSave = async () => {
-    if (!key || !value) {
-      toast.error("Please provide both key and value");
-      return;
-    }
-
+    if (!key || !value) { toast.error("Key and value are required"); return; }
     try {
-      // Try to parse as JSON (handles numbers, booleans, objects, arrays)
-      // If it's a raw string without quotes, JSON.parse will fail, and we'll use the raw string
       let parsed;
-      try {
-        parsed = JSON.parse(value);
-      } catch {
-        parsed = value;
-      }
-
-      await setKeyMutation.mutateAsync({
-        dooId,
-        key,
-        value: parsed,
-      });
-      toast.success("Record created successfully");
-      reset();
-      onClose();
+      try { parsed = JSON.parse(value); } catch { parsed = value; }
+      await setKeyMutation.mutateAsync({ dooId, key, value: parsed });
+      toast.success("Record created");
+      setKey(""); setValue(""); onClose();
     } catch (err: any) {
-      toast.error(err.message || "Failed to create record");
+      toast.error(err.message || "Failed to create");
     }
-  };
-
-  const reset = () => {
-    setKey("");
-    setValue("");
-    setIsValid(true);
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Post New Record"
-      subtitle="Deploy a persistent node to this unit"
-      maxWidth="lg"
-    >
-      <div className="space-y-6">
-        <div className="space-y-4">
-          <Input
-            label="Record Key"
-            placeholder="e.g. settings_v1"
-            value={key}
-            onChange={(e) => setKey(e.target.value)}
-          />
+    <Modal isOpen={isOpen} onClose={onClose} title="Add record" maxWidth="md">
+      <div className="space-y-4">
+        <Input
+          label="Key"
+          placeholder="e.g. settings_v1"
+          value={key}
+          onChange={(e) => setKey(e.target.value)}
+        />
 
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between px-0.5">
-              <label className="text-[10px] font-extrabold text-text-muted uppercase tracking-widest leading-none">
-                Data Content
-              </label>
-              <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest text-brand opacity-60">
-                <Database size={10} />
-                <span>Flexible Persistence</span>
-              </div>
-            </div>
-            <textarea
-              value={value}
-              onChange={(e) => handleTextChange(e.target.value)}
-              className="w-full h-40 p-4 bg-bg border border-border rounded-xl resize-none outline-none text-xs font-mono transition-all focus:border-brand/40 shadow-inner"
-              placeholder='{ "status": "active" } OR "Hello World"'
-              spellCheck={false}
-            />
-          </div>
+        <div className="space-y-1.5">
+          <label className="text-[12px] font-medium text-text-muted">Value</label>
+          <textarea
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            className="w-full h-36 px-3 py-2 bg-surface border border-border rounded resize-none outline-none text-[12px] font-mono text-text focus:border-border-hover transition-colors placeholder:text-text-subtle no-scrollbar"
+            placeholder='{ "key": "value" }'
+            spellCheck={false}
+          />
         </div>
 
-        <div className="flex justify-end gap-3 pt-2">
-          <Button variant="secondary" size="md" onClick={onClose}>
-            Cancel
-          </Button>
+        <div className="flex justify-end gap-2 pt-1">
+          <Button variant="ghost" size="sm" onClick={onClose}>Cancel</Button>
           <Button
-            size="md"
-            className="px-8 shadow-lg shadow-brand/10"
-            disabled={!key || !value || !isValid || setKeyMutation.isPending}
+            size="sm"
+            disabled={!key || !value || setKeyMutation.isPending}
             onClick={handleSave}
+            className="gap-1.5"
           >
-            <Plus size={16} className="mr-2" />
-            {setKeyMutation.isPending ? "Creating..." : "Create Record"}
+            <Plus size={12} />
+            {setKeyMutation.isPending ? "Creating…" : "Create"}
           </Button>
         </div>
       </div>

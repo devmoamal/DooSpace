@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Save, FileCode, Database, Code2 } from "lucide-react";
+import { X, Save } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useSetDooBoxKeyMutation } from "@/hooks/queries/useDooBox";
 import { toast } from "sonner";
@@ -14,11 +14,7 @@ interface JSONEditorDrawerProps {
 }
 
 export function JSONEditorDrawer({
-  isOpen,
-  onClose,
-  dooId,
-  recordKey,
-  initialValue,
+  isOpen, onClose, dooId, recordKey, initialValue,
 }: JSONEditorDrawerProps) {
   const [value, setValue] = useState("");
   const [isValid, setIsValid] = useState(true);
@@ -32,110 +28,63 @@ export function JSONEditorDrawer({
 
   const handleSave = async () => {
     try {
-      // Try to parse as JSON (handles numbers, booleans, objects, arrays)
-      // If it's a raw string without quotes, JSON.parse will fail, and we'll use the raw string
       let parsed;
-      try {
-        parsed = JSON.parse(value);
-      } catch {
-        parsed = value;
-      }
-
-      await setKeyMutation.mutateAsync({
-        dooId,
-        key: recordKey,
-        value: parsed,
-      });
-      toast.success("Record updated successfully");
+      try { parsed = JSON.parse(value); } catch { parsed = value; }
+      await setKeyMutation.mutateAsync({ dooId, key: recordKey, value: parsed });
+      toast.success("Saved");
       onClose();
     } catch (err: any) {
-      toast.error(err.message || "Failed to save record");
+      toast.error(err.message || "Failed to save");
     }
-  };
-
-  const handleTextChange = (val: string) => {
-    setValue(val);
-    setIsValid(true); // Always valid as we fallback to text
   };
 
   if (!isOpen) return null;
 
   return (
     <>
-      {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-bg/40 backdrop-blur-[2px] z-100 animate-in fade-in duration-200"
-        onClick={onClose}
-      />
-
-      {/* Drawer */}
-      <div className="fixed inset-y-0 right-0 w-[500px] bg-bg border-l border-border shadow-2xl z-101 flex flex-col animate-in slide-in-from-right duration-300">
-        <header className="h-16 border-b border-border flex items-center justify-between px-6 bg-surface/30 shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-brand/10 text-brand rounded-lg">
-              <FileCode size={18} />
-            </div>
-            <div>
-              <h2 className="text-sm font-bold text-text">Edit Persistent Node</h2>
-              <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest leading-none mt-1">{recordKey}</p>
-            </div>
+      <div className="fixed inset-0 z-100 bg-black/20" onClick={onClose} />
+      <div className="fixed inset-y-0 right-0 w-[460px] bg-bg border-l border-border z-101 flex flex-col">
+        {/* Header */}
+        <header className="h-11 border-b border-border flex items-center justify-between px-5 shrink-0">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-[12px] font-medium text-text shrink-0">Edit record</span>
+            <span className="text-[11px] font-mono text-text-muted truncate">{recordKey}</span>
           </div>
-          <button 
+          <button
             onClick={onClose}
-            className="p-2 text-text-muted hover:text-text hover:bg-surface rounded-lg transition-all"
+            className="p-1 text-text-subtle hover:text-text-muted transition-colors rounded hover:bg-surface shrink-0 ml-3 cursor-pointer"
           >
-            <X size={20} />
+            <X size={15} />
           </button>
         </header>
 
-        <div className="flex-1 flex flex-col min-h-0 bg-surface/5">
-          {/* Metadata Bar */}
-          <div className="px-6 py-3 border-b border-border bg-bg/50 flex items-center gap-4 shrink-0">
-             <div className="flex items-center gap-2 text-[10px] font-bold text-text-muted uppercase tracking-widest">
-                <Database size={12} className="opacity-40" />
-                <span>Node Identity: {recordKey}</span>
-             </div>
-             <div className={cn(
-               "flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest ml-auto transition-colors text-brand/60"
-             )}>
-                <Code2 size={12} />
-                <span>Flexible Mode</span>
-             </div>
-          </div>
-
-          {/* Editor Area */}
-          <div className="flex-1 p-6 overflow-hidden">
-            <div className="h-full relative font-mono text-xs">
-              <textarea
-                value={value}
-                onChange={(e) => handleTextChange(e.target.value)}
-                className={cn(
-                  "w-full h-full p-4 bg-bg border rounded-xl resize-none outline-none transition-all custom-scrollbar",
-                  isValid ? "border-border focus:border-brand/40" : "border-amber-500/50 focus:border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.05)]"
-                )}
-                spellCheck={false}
-              />
-            </div>
-          </div>
+        {/* Editor */}
+        <div className="flex-1 p-4 overflow-hidden">
+          <textarea
+            value={value}
+            onChange={(e) => { setValue(e.target.value); setIsValid(true); }}
+            className={cn(
+              "w-full h-full p-4 bg-surface border rounded resize-none outline-none text-[12px] font-mono text-text transition-colors no-scrollbar",
+              "placeholder:text-text-subtle",
+              isValid
+                ? "border-border focus:border-border-hover"
+                : "border-red-500/40"
+            )}
+            spellCheck={false}
+          />
         </div>
 
-        <footer className="p-6 border-t border-border bg-surface/30 flex items-center justify-end gap-3 shrink-0">
-          <Button 
-            variant="secondary" 
-            size="md" 
-            className="min-w-[100px]"
-            onClick={onClose}
-          >
-            Discard
-          </Button>
-          <Button 
-            size="md" 
-            className="min-w-[120px] shadow-lg shadow-brand/10"
+        {/* Footer */}
+        <footer className="h-12 px-5 border-t border-border flex items-center justify-end gap-2 shrink-0">
+          <Button variant="ghost" size="sm" onClick={onClose}>Cancel</Button>
+          <Button
+            size="sm"
             onClick={handleSave}
             disabled={!isValid || setKeyMutation.isPending}
+            className="gap-1.5"
           >
-            <Save size={16} className="mr-2" />
-            {setKeyMutation.isPending ? "Saving..." : "Save Changes"}
+            <Save size={12} />
+            {setKeyMutation.isPending ? "Saving…" : "Save"}
           </Button>
         </footer>
       </div>

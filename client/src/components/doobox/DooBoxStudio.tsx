@@ -10,22 +10,21 @@ import { Loader2 } from "lucide-react";
 export function DooBoxStudio() {
   const [selectedDoo, setSelectedDoo] = useState<DooBoxUsage | null>(null);
   const [sidebarSearch, setSidebarSearch] = useState("");
-  const [editingRecord, setEditingRecord] = useState<{ key: string, value: any } | null>(null);
+  const [editingRecord, setEditingRecord] = useState<{ key: string; value: any } | null>(null);
   const [isAddingRecord, setIsAddingRecord] = useState(false);
 
   const { data: usage = [], isLoading } = useDooBoxUsageQuery();
 
   if (isLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-bg font-sans">
-        <Loader2 className="animate-spin text-brand" size={32} />
+      <div className="flex-1 flex items-center justify-center bg-bg">
+        <Loader2 className="animate-spin text-text-subtle" size={18} />
       </div>
     );
   }
 
   return (
-    <div className="flex-1 flex h-full overflow-hidden bg-bg font-sans">
-      {/* Lateral Navigation Sidebar */}
+    <div className="flex-1 flex h-full overflow-hidden bg-bg">
       <StudioSidebar
         usage={usage}
         selectedDooId={selectedDoo?.dooId || null}
@@ -34,14 +33,12 @@ export function DooBoxStudio() {
         onSearchChange={setSidebarSearch}
       />
 
-      {/* Unified Studio Workspace */}
       <DooBoxUnifiedWorkspace
         doo={selectedDoo}
         onEdit={(key, value) => setEditingRecord({ key, value })}
         onAdd={() => setIsAddingRecord(true)}
       />
 
-      {/* Slide-out JSON Editor */}
       {selectedDoo && editingRecord && (
         <JSONEditorDrawer
           isOpen={!!editingRecord}
@@ -52,7 +49,6 @@ export function DooBoxStudio() {
         />
       )}
 
-      {/* Advanced Add Record Modal */}
       {selectedDoo && (
         <AddRecordModal
           isOpen={isAddingRecord}

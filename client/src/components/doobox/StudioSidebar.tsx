@@ -1,4 +1,4 @@
-import { Search, Database, ExternalLink, ChevronRight } from "lucide-react";
+import { Search, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { DooAvatar } from "@/components/ui/DooAvatar";
 import { type DooBoxUsage } from "@doospace/shared";
@@ -12,98 +12,68 @@ interface StudioSidebarProps {
 }
 
 export function StudioSidebar({
-  usage,
-  selectedDooId,
-  onSelect,
-  searchTerm,
-  onSearchChange,
+  usage, selectedDooId, onSelect, searchTerm, onSearchChange,
 }: StudioSidebarProps) {
-  const filteredUsage = usage.filter(u => 
+  const filtered = usage.filter((u) =>
     u.dooName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     u.dooId.toString().includes(searchTerm)
   );
 
+  const totalBytes = usage.reduce((acc, u) => acc + u.sizeBytes, 0);
+  const totalDisplay = totalBytes > 1024
+    ? `${(totalBytes / 1024).toFixed(1)} KB`
+    : `${totalBytes} B`;
+
   return (
-    <div className="w-72 border-r border-border bg-surface/30 flex flex-col shrink-0">
-      <div className="p-4 border-b border-border bg-bg/50">
+    <div className="w-60 border-r border-border bg-bg flex flex-col shrink-0">
+      {/* Search */}
+      <div className="p-3 border-b border-border">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted/40" size={14} />
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-text-subtle" size={13} />
           <input
-            className="w-full h-9 pl-9 pr-4 bg-bg border border-border rounded-lg text-[11px] font-medium placeholder:text-text-muted/40 outline-none focus:border-brand/40 focus:ring-1 focus:ring-brand/10 transition-all"
-            placeholder="Search Doos..."
+            className="w-full h-8 pl-8 pr-3 bg-surface border border-border rounded text-[12px] text-text placeholder:text-text-subtle outline-none focus:border-border-hover transition-colors"
+            placeholder="Search"
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
           />
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1">
-        <div className="px-3 py-2">
-          <p className="text-[10px] font-extrabold text-text-muted uppercase tracking-[0.2em] mb-4">
-            Doo Units
-          </p>
-          <div className="space-y-1">
-            {filteredUsage.map((doo) => {
-              const isActive = selectedDooId === doo.dooId;
-              return (
-                <button
-                  key={doo.dooId}
-                  onClick={() => onSelect(doo)}
-                  className={cn(
-                    "w-full flex items-center justify-between p-2.5 rounded-lg transition-all group relative",
-                    isActive 
-                      ? "bg-brand/10 border border-brand/20 shadow-sm" 
-                      : "hover:bg-surface border border-transparent"
-                  )}
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <DooAvatar 
-                      id={doo.dooId} 
-                      size={24} 
-                      className={cn(
-                        "rounded ring-1 transition-all",
-                        isActive ? "ring-brand/40" : "ring-border/50 group-hover:ring-brand/20"
-                      )} 
-                    />
-                    <div className="text-left min-w-0">
-                      <p className={cn(
-                        "text-[11px] font-bold truncate leading-tight transition-colors",
-                        isActive ? "text-brand" : "text-text group-hover:text-brand"
-                      )}>
-                        {doo.dooName}
-                      </p>
-                      <p className="text-[9px] text-text-muted font-bold uppercase tracking-widest leading-none mt-1">
-                        {doo.keyCount} items • {doo.formattedSize}
-                      </p>
-                    </div>
-                  </div>
-                  {isActive && (
-                    <div className="w-1 absolute left-0 top-2 bottom-2 bg-brand rounded-r-full" />
-                  )}
-                  <ChevronRight 
-                    size={12} 
-                    className={cn(
-                      "transition-all shrink-0",
-                      isActive ? "text-brand translate-x-0 opacity-100" : "text-text-muted -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100"
-                    )} 
-                  />
-                </button>
-              );
-            })}
-          </div>
-        </div>
+      {/* List */}
+      <div className="flex-1 overflow-y-auto p-2 space-y-0.5 no-scrollbar">
+        {filtered.length === 0 && (
+          <p className="text-[11px] text-text-subtle px-3 py-4 text-center">No results</p>
+        )}
+        {filtered.map((doo) => {
+          const isActive = selectedDooId === doo.dooId;
+          return (
+            <button
+              key={doo.dooId}
+              onClick={() => onSelect(doo)}
+              className={cn(
+                "w-full flex items-center gap-2.5 px-2 py-2 rounded text-left transition-colors cursor-pointer",
+                isActive
+                  ? "bg-surface text-text"
+                  : "text-text-muted hover:bg-surface hover:text-text",
+              )}
+            >
+              <DooAvatar id={doo.dooId} size={22} className="rounded shrink-0" />
+              <div className="min-w-0 flex-1">
+                <p className="text-[12px] font-medium truncate leading-tight">{doo.dooName}</p>
+                <p className="text-[10px] font-mono text-text-subtle leading-none mt-0.5">
+                  {doo.keyCount} · {doo.formattedSize}
+                </p>
+              </div>
+              {isActive && <ChevronRight size={12} className="text-text-subtle shrink-0" />}
+            </button>
+          );
+        })}
       </div>
 
-      <div className="p-4 border-t border-border bg-bg/50">
-        <div className="flex items-center justify-between text-[10px] font-bold text-text-muted uppercase tracking-widest">
-          <span>Global Stats</span>
-          <span className="text-brand">
-            {usage.reduce((acc, curr) => acc + curr.sizeBytes, 0) > 1024 
-              ? `${(usage.reduce((acc, curr) => acc + curr.sizeBytes, 0) / 1024).toFixed(1)} KB`
-              : `${usage.reduce((acc, curr) => acc + curr.sizeBytes, 0)} B`
-            }
-          </span>
-        </div>
+      {/* Footer */}
+      <div className="px-4 py-2.5 border-t border-border flex items-center justify-between">
+        <span className="text-[10px] text-text-subtle uppercase tracking-widest">Total</span>
+        <span className="text-[11px] font-mono text-text-muted">{totalDisplay}</span>
       </div>
     </div>
   );
