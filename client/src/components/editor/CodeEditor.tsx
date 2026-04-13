@@ -8,6 +8,7 @@ interface CodeEditorProps {
   onChange: (value: string) => void;
   className?: string;
   height?: string;
+  onFormat?: (code: string) => Promise<string>;
 }
 
 export const CodeEditor: React.FC<CodeEditorProps> = ({
@@ -15,6 +16,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   onChange,
   className,
   height = "600px",
+  onFormat,
 }) => {
   const editorRef = useRef<any>(null);
 
@@ -29,16 +31,15 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
       module: monaco.languages.typescript.ModuleKind.ESNext,
       noEmit: true,
       allowJs: true,
+      jsx: monaco.languages.typescript.JsxEmit.React,
+      lib: ["esnext", "dom"],
     });
 
-    // Disable the built-in diagnostics — Monaco's in-browser TS worker
-    // cannot resolve standard lib types (Promise, Date, Response, etc.)
-    // which causes false-positive red squiggles everywhere.
-    // Our driver still provides full autocomplete + hover documentation.
+    // Enable diagnostics
     monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
-      noSemanticValidation: true,
+      noSemanticValidation: false,
       noSyntaxValidation: false,
-      noSuggestionDiagnostics: true,
+      noSuggestionDiagnostics: false,
     });
 
     // Inject Doo Space Type Definitions (The Driver)
@@ -82,9 +83,27 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
       },
     });
 
+    const COLOR_SUGGESTIONS = [
+      "white",
+      "brown",
+      "yellow",
+      "red",
+      "green",
+      "blue",
+      "purple",
+      "brand",
+    ];
+
     monaco.languages.registerCompletionItemProvider("typescript", {
       provideCompletionItems: (model: any, position: any) => {
         const word = model.getWordUntilPosition(position);
+        const textUntilPosition = model.getValueInRange({
+          startLineNumber: position.lineNumber,
+          startColumn: 1,
+          endLineNumber: position.lineNumber,
+          endColumn: position.column,
+        });
+
         const range = {
           startLineNumber: position.lineNumber,
           endLineNumber: position.lineNumber,
@@ -92,7 +111,51 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
           endColumn: word.endColumn,
         };
 
-        const suggestions = [
+        const suggestions: any[] = [];
+
+        // Add color suggestions if in doo.pixel
+        if (textUntilPosition.match(/doo\.pixel\([^,]+,[^,]+,\s*["']?$/)) {
+          suggestions.push(
+            ...COLOR_SUGGESTIONS.map((color) => ({
+              label: color,
+              kind: monaco.languages.CompletionItemKind.Color,
+              insertText: color,
+              range,
+            })),
+          );
+        }
+
+        suggestions.push(
+          {
+            label: "doo.boilerplate",
+            kind: monaco.languages.CompletionItemKind.Snippet,
+            documentation: "Generate a full Doo boilerplate",
+            insertText:
+              'import { type Doo } from "doospace";\n\nexport default function(doo: Doo) {\n  doo.get("/", async (req) => {\n    return { message: "Hello from DooSpace" };\n  });\n}',
+            insertTextRules:
+              monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            range,
+          },
+          {
+            label: "doo.webhook",
+            kind: monaco.languages.CompletionItemKind.Snippet,
+            documentation: "Generate a robust Webhook handler",
+            insertText:
+              'doo.post("/webhook", async (req) => {\n  const { event, data } = req.body;\n  doo.log(`Received event: \\${event}`);\n  \n  await doo.db.set(`event_\\${Date.now()}`, data);\n  \n  return doo.json({ received: true }, 200);\n});',
+            insertTextRules:
+              monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            range,
+          },
+          {
+            label: "doo.db.list",
+            kind: monaco.languages.CompletionItemKind.Snippet,
+            documentation: "List and return all stored items",
+            insertText:
+              'doo.get("/db", async () => {\n  const keys = await doo.db.list();\n  const items = await Promise.all(\n    keys.map(async (k) => ({ key: k, value: await doo.db.get(k) }))\n  );\n  return items;\n});',
+            insertTextRules:
+              monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            range,
+          },
           {
             label: "doo.get",
             kind: monaco.languages.CompletionItemKind.Snippet,
@@ -118,6 +181,25 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: "Draw a pixel on the 24x24 canvas",
             insertText: 'doo.pixel(${1:0}, ${2:0}, "${3:brand}");',
+            insertTextRules:
+              monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            range,
+          },
+          {
+            label: "doo.canvas.fill",
+            kind: monaco.languages.CompletionItemKind.Snippet,
+            documentation: "Fill the entire canvas",
+            insertText: 'doo.fill("${1:brand}");',
+            insertTextRules:
+              monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            range,
+          },
+          {
+            label: "doo.canvas.rect",
+            kind: monaco.languages.CompletionItemKind.Snippet,
+            documentation: "Draw a rectangle",
+            insertText:
+              'doo.rect(${1:x}, ${2:y}, ${3:width}, ${4:height}, "${5:brand}");',
             insertTextRules:
               monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
             range,
@@ -149,9 +231,76 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
               monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
             range,
           },
-        ];
+        );
 
         return { suggestions };
+      },
+    });
+
+    monaco.languages.registerHoverProvider("typescript", {
+      provideHover: (model: any, position: any) => {
+        const word = model.getWordAtPosition(position);
+        if (!word) return;
+
+        if (word.word === "pixel" || word.word === "doo") {
+          const line = model.getLineContent(position.lineNumber);
+          if (line.includes("doo.pixel")) {
+            return {
+              range: new monaco.Range(
+                position.lineNumber,
+                line.indexOf("pixel"),
+                position.lineNumber,
+                line.indexOf("pixel") + 5,
+              ),
+              contents: [
+                { value: "**doo.pixel(x, y, color)**" },
+                {
+                  value:
+                    "Draws a pixel on the 24x24 canvas.\n\n- **x**: 0-23 (horizontal)\n- **y**: 0-23 (vertical)\n- **color**: One of: " +
+                    COLOR_SUGGESTIONS.join(", "),
+                },
+              ],
+            };
+          }
+        }
+        return null;
+      },
+    });
+
+    monaco.languages.registerDocumentSymbolProvider("typescript", {
+      provideDocumentSymbols: (model: any) => {
+        const symbols: any[] = [];
+        const lines = model.getLinesContent();
+
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i];
+          const match = line.match(
+            /doo\.(get|post|put|delete|all)\(\s*["']([^"']+)["']/,
+          );
+          if (match) {
+            symbols.push({
+              name: `[${match[1].toUpperCase()}] ${match[2]}`,
+              detail: "Route Definition",
+              kind: monaco.languages.SymbolKind.Method,
+              range: new monaco.Range(i + 1, 1, i + 1, line.length + 1),
+              selectionRange: new monaco.Range(i + 1, 1, i + 1, line.length + 1),
+            });
+          }
+        }
+        return symbols;
+      },
+    });
+
+    monaco.languages.registerDocumentFormattingEditProvider("typescript", {
+      provideDocumentFormattingEdits: async (model: any) => {
+        if (!onFormat) return [];
+        const formatted = await onFormat(model.getValue());
+        return [
+          {
+            range: model.getFullModelRange(),
+            text: formatted,
+          },
+        ];
       },
     });
 

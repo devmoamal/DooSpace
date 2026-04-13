@@ -23,6 +23,7 @@ export const DooEditorPage: React.FC<DooEditorProps> = ({ id }) => {
     isFormatting,
     isSaving,
     handleFormat,
+    formatCode,
     handleSave,
     handleSync,
   } = useDooEditor({
@@ -73,7 +74,12 @@ export const DooEditorPage: React.FC<DooEditorProps> = ({ id }) => {
 
       <main className="flex-1 flex gap-0 overflow-hidden min-h-0 relative z-10">
         <div className="flex-1 flex flex-col overflow-hidden pl-6">
-          <LogicEditor id={id} code={code} onChange={setCode} />
+          <LogicEditor
+            id={id}
+            code={code}
+            onChange={setCode}
+            onFormat={formatCode}
+          />
         </div>
 
         {/* Resize Handle */}
