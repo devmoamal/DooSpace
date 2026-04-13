@@ -311,7 +311,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-lg border border-border/80 shadow-2xl shadow-black/5 bg-[#0e0e0e] transition-all",
+        "overflow-hidden rounded border border-border bg-[#0e0e0e]",
         className,
       )}
     >

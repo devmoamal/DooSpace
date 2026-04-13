@@ -42,8 +42,8 @@ export const DooEditorPage: React.FC<DooEditorProps> = ({ id }) => {
 
   if (isDooLoading) {
     return (
-      <div className="h-full flex items-center justify-center">
-        <Loader2 className="animate-spin text-brand" size={32} />
+      <div className="h-full flex items-center justify-center bg-bg">
+        <Loader2 className="animate-spin text-text-subtle" size={18} />
       </div>
     );
   }
@@ -51,11 +51,10 @@ export const DooEditorPage: React.FC<DooEditorProps> = ({ id }) => {
   return (
     <div
       className={cn(
-        "flex-1 flex flex-col h-full bg-surface overflow-hidden relative",
+        "flex-1 flex flex-col h-full bg-bg overflow-hidden relative",
         isResizing && "cursor-col-resize select-none",
       )}
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(62,207,142,0.03),transparent_50%)] pointer-events-none" />
 
       <EditorHeader
         id={id}
@@ -72,8 +71,8 @@ export const DooEditorPage: React.FC<DooEditorProps> = ({ id }) => {
         isFormatting={isFormatting}
       />
 
-      <main className="flex-1 flex gap-0 overflow-hidden min-h-0 relative z-10">
-        <div className="flex-1 flex flex-col overflow-hidden pl-6">
+      <main className="flex-1 flex gap-0 overflow-hidden min-h-0">
+        <div className="flex-1 flex flex-col overflow-hidden p-4">
           <LogicEditor
             id={id}
             code={code}
@@ -82,17 +81,16 @@ export const DooEditorPage: React.FC<DooEditorProps> = ({ id }) => {
           />
         </div>
 
-        {/* Resize Handle */}
         <div
           onMouseDown={startResizing}
           className={cn(
-            "w-1 relative z-20 cursor-col-resize hover:bg-brand/30 transition-colors",
-            isResizing && "bg-brand/50",
+            "w-px relative z-20 cursor-col-resize bg-border hover:bg-border-hover transition-colors",
+            isResizing && "bg-brand",
           )}
         />
 
         <div
-          className="hidden lg:flex bg-surface flex-col shrink-0 overflow-hidden"
+          className="hidden lg:flex bg-bg flex-col shrink-0 overflow-hidden"
           style={{ width: sidebarWidth }}
         >
           <EndpointsPanel

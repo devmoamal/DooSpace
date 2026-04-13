@@ -8,81 +8,73 @@ interface EndpointsPanelProps {
   className?: string;
 }
 
-export function EndpointsPanel({
-  endpoints,
-  className,
-}: EndpointsPanelProps) {
+const METHOD_COLOR: Record<string, string> = {
+  GET:    "text-brand",
+  POST:   "text-blue-500",
+  PUT:    "text-amber-500",
+  PATCH:  "text-amber-500",
+  DELETE: "text-red-500",
+};
+
+export function EndpointsPanel({ endpoints, className }: EndpointsPanelProps) {
   const [expandedIndices, setExpandedIndices] = useState<Set<number>>(new Set());
 
   const toggleExpand = (idx: number) => {
     const next = new Set(expandedIndices);
-    if (next.has(idx)) {
-      next.delete(idx);
-    } else {
-      next.add(idx);
-    }
+    if (next.has(idx)) next.delete(idx);
+    else next.add(idx);
     setExpandedIndices(next);
   };
 
   return (
-    <div className={cn("flex flex-col h-full bg-surface border-l border-border", className)}>
+    <div className={cn("flex flex-col h-full bg-bg border-l border-border", className)}>
       {/* Header */}
-      <div className="px-4 py-3 flex items-center justify-between border-b border-border bg-bg/20">
-        <div className="flex items-center gap-2">
-          <Hash size={12} className="text-brand" />
-          <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest">
-            Endpoints
-          </span>
-        </div>
+      <div className="h-11 px-4 flex items-center gap-2 border-b border-border shrink-0">
+        <Hash size={12} className="text-text-subtle" />
+        <span className="text-[10px] font-semibold text-text-muted uppercase tracking-widest">
+          Endpoints
+        </span>
       </div>
 
+      {/* List */}
       <div className="flex-1 overflow-y-auto no-scrollbar">
         {endpoints.length > 0 ? (
-          <div className="divide-y divide-border/30">
+          <div className="divide-y divide-border">
             {endpoints.map((ep, i) => {
               const isExpanded = expandedIndices.has(i);
-              const { method, path } = ep;
+              const methodColor = METHOD_COLOR[ep.method.toUpperCase()] ?? "text-text-muted";
 
               return (
-                <div key={i} className={cn("flex flex-col transition-all duration-200", isExpanded ? "bg-bg/40" : "hover:bg-bg/20")}>
+                <div key={i} className={cn("flex flex-col", isExpanded && "bg-surface")}>
                   <button
                     onClick={() => toggleExpand(i)}
-                    className="flex items-center gap-3 px-4 py-3.5 text-left min-w-0 group w-full"
+                    className="flex items-center gap-2.5 px-4 py-3 text-left min-w-0 group w-full cursor-pointer transition-colors hover:bg-surface"
                   >
-                    <ChevronRight 
-                      size={12} 
-                      className={cn("transition-transform duration-300 text-text-muted/30", isExpanded && "rotate-90 text-brand")} 
+                    <ChevronRight
+                      size={12}
+                      className={cn(
+                        "transition-transform text-text-subtle shrink-0",
+                        isExpanded && "rotate-90"
+                      )}
                     />
                     <span className={cn(
-                      "text-[9px] font-black px-1.5 py-0.5 rounded-[4px] border uppercase shrink-0 transition-colors",
-                      method === "GET" ? "text-emerald-500 border-emerald-500/20 bg-emerald-500/5" :
-                      method === "POST" ? "text-blue-500 border-blue-500/20 bg-blue-500/5" :
-                      method === "DELETE" ? "text-red-500 border-red-500/20 bg-red-500/5" :
-                      "text-amber-500 border-amber-500/20 bg-amber-500/5"
+                      "text-[9px] font-bold uppercase shrink-0 tracking-wide",
+                      methodColor
                     )}>
-                      {method}
+                      {ep.method}
                     </span>
                     <span className={cn(
-                      "flex-1 font-mono text-[11px] truncate tracking-tight transition-colors",
-                      isExpanded ? "text-text font-bold" : "text-text/60 group-hover:text-text/90 font-medium"
+                      "flex-1 font-mono text-[11px] truncate",
+                      isExpanded ? "text-text" : "text-text-muted"
                     )}>
-                      {path}
+                      {ep.path}
                     </span>
                   </button>
 
                   {isExpanded && (
-                    <div className="px-4 pb-5 animate-in fade-in slide-in-from-top-1 duration-200">
-                      <div className="space-y-5 pt-2">
-                        <TypeSquare 
-                          label="Payload" 
-                          typeStr={ep.request_type} 
-                        />
-                        <TypeSquare 
-                          label="Returns" 
-                          typeStr={ep.response_type} 
-                          isResponse
-                        />
-                      </div>
+                    <div className="px-4 pb-4 space-y-3">
+                      <TypeBlock label="Payload" typeStr={ep.request_type} />
+                      <TypeBlock label="Returns" typeStr={ep.response_type} isResponse />
                     </div>
                   )}
                 </div>
@@ -90,9 +82,11 @@ export function EndpointsPanel({
             })}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-20 px-6 opacity-20">
-            <Hash size={24} />
-            <span className="text-[10px] mt-2 font-bold uppercase tracking-widest">No Routes Detected</span>
+          <div className="flex flex-col items-center justify-center py-16 text-text-subtle">
+            <Hash size={20} className="mb-2 opacity-30" />
+            <span className="text-[10px] font-medium uppercase tracking-widest opacity-40">
+              No routes
+            </span>
           </div>
         )}
       </div>
@@ -100,23 +94,23 @@ export function EndpointsPanel({
   );
 }
 
-function TypeSquare({ label, typeStr, isResponse }: { label: string, typeStr?: string, isResponse?: boolean }) {
+function TypeBlock({ label, typeStr, isResponse }: { label: string; typeStr?: string; isResponse?: boolean }) {
   const formatted = typeStr ? formatType(typeStr) : null;
-  
+
   return (
-    <div className="flex flex-col gap-1.5">
-      <div className="px-0.5">
-        <span className="text-[8px] font-black text-text-muted/40 uppercase tracking-[0.15em]">{label}</span>
-      </div>
+    <div className="space-y-1.5">
+      <span className="text-[9px] font-semibold text-text-subtle uppercase tracking-wider">{label}</span>
       <div className={cn(
-        "p-3 rounded-lg border font-mono text-[10px] leading-relaxed overflow-x-auto transition-all shadow-inner",
-        isResponse ? "bg-brand/[0.01] border-brand/10 text-brand/80" : "bg-bg/40 border-border/60 text-text/50"
+        "p-3 rounded border font-mono text-[10px] leading-relaxed overflow-x-auto",
+        isResponse
+          ? "bg-brand-muted border-brand/10 text-brand"
+          : "bg-surface border-border text-text-muted"
       )}>
         {formatted ? (
-          <pre className="whitespace-pre scrollbar-hide">{formatted}</pre>
+          <pre className="whitespace-pre">{formatted}</pre>
         ) : (
-          <span className="italic text-text-muted/20 text-[9px] font-medium">
-            {isResponse ? "Returns standard Response" : "No payload required"}
+          <span className="text-text-subtle text-[9px]">
+            {isResponse ? "Standard Response" : "No payload"}
           </span>
         )}
       </div>
@@ -137,7 +131,7 @@ function formatType(typeStr: string): string {
     const char = str[i];
     const nextChar = str[i + 1];
     const prevChar = str[i - 1];
-    
+
     if (char === "{" || char === "[") {
       if (nextChar === "}" || nextChar === "]") {
         result += char;
@@ -154,10 +148,10 @@ function formatType(typeStr: string): string {
       }
     } else if (char === ";" || char === ",") {
       result += char + "\n" + " ".repeat(indent * step);
-      while (str[i+1] === " ") i++;
+      while (str[i + 1] === " ") i++;
     } else if (char === ":") {
       result += ": ";
-      while (str[i+1] === " ") i++;
+      while (str[i + 1] === " ") i++;
     } else {
       if (char !== " " || (result.length > 0 && result[result.length - 1] !== " ")) {
         result += char;

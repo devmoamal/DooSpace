@@ -18,7 +18,7 @@ export const BrowserURLBar: React.FC<BrowserURLBarProps> = ({
 
   const handleCopy = () => {
     navigator.clipboard.writeText(deploymentUrl);
-    toast.success("Deployment link copied");
+    toast.success("Link copied");
   };
 
   const handleOpen = () => {
@@ -26,37 +26,33 @@ export const BrowserURLBar: React.FC<BrowserURLBarProps> = ({
   };
 
   return (
-    <div className="px-6 py-2 bg-surface-lighter/10 shrink-0 z-10 flex items-center gap-4">
-      <div className="flex-1 flex items-center gap-3 px-3 py-1.5 rounded-full bg-surface border border-border/60 shadow-inner group">
-        <EarthIcon size={12} className="text-brand/80" />
-
-        <div className="flex-1 min-w-0 font-mono text-[11px] truncate tracking-tight text-brand">
+    <div className="px-5 py-2 border-b border-border bg-bg shrink-0 z-10 flex items-center gap-3">
+      <div className="flex-1 flex items-center gap-2.5 px-3 py-1.5 rounded bg-surface border border-border group">
+        <EarthIcon size={12} className="text-text-subtle shrink-0" />
+        <div className="flex-1 min-w-0 font-mono text-[11px] truncate text-text-muted">
           {deploymentUrl}
         </div>
 
-        <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={onFormat}
             disabled={isFormatting}
-            className="p-1 hover:bg-surface-lighter rounded-md text-text/30 hover:text-brand transition-all"
-            title="Format Code"
+            className="p-1 rounded text-text-subtle hover:text-text-muted hover:bg-surface-lighter transition-colors cursor-pointer"
+            title="Format"
           >
-            <Sparkles
-              size={12}
-              className={cn(isFormatting && "animate-pulse")}
-            />
+            <Sparkles size={12} className={cn(isFormatting && "animate-pulse")} />
           </button>
           <button
             onClick={handleCopy}
-            className="p-1 hover:bg-surface-lighter rounded-md text-text/30 hover:text-brand transition-all"
-            title="Copy link"
+            className="p-1 rounded text-text-subtle hover:text-text-muted hover:bg-surface-lighter transition-colors cursor-pointer"
+            title="Copy"
           >
             <Copy size={12} />
           </button>
           <button
             onClick={handleOpen}
-            className="p-1 hover:bg-surface-lighter rounded-md text-text/30 hover:text-brand transition-all"
-            title="Open in new tab"
+            className="p-1 rounded text-text-subtle hover:text-text-muted hover:bg-surface-lighter transition-colors cursor-pointer"
+            title="Open"
           >
             <ExternalLink size={12} />
           </button>
