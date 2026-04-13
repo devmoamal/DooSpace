@@ -42,6 +42,17 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
       noSuggestionDiagnostics: false,
     });
 
+    // Configure inlay hints
+    monaco.languages.typescript.typescriptDefaults.setInlayHintsOptions({
+      includeInlayParameterNameHints: "all",
+      includeInlayParameterNameHintsWhenArgumentMatchesName: true,
+      includeInlayFunctionParameterTypeHints: true,
+      includeInlayVariableTypeHints: true,
+      includeInlayPropertyDeclarationTypeHints: true,
+      includeInlayFunctionLikeReturnTypeHints: true,
+      includeInlayEnumMemberValueHints: true,
+    });
+
     // Inject Doo Space Type Definitions (The Driver)
     monaco.languages.typescript.typescriptDefaults.addExtraLib(
       DOO_TYPES,
@@ -350,7 +361,24 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
             showSnippets: true,
             showFunctions: true,
             showVariables: true,
+            snippetsPreventQuickSuggestions: false,
           },
+          parameterHints: {
+            enabled: true,
+            cycle: true,
+          },
+          inlayHints: {
+            enabled: "on",
+          },
+          quickSuggestions: {
+            other: true,
+            comments: false,
+            strings: true,
+          },
+          wordBasedSuggestions: "allDocuments",
+          suggestSelection: "first",
+          formatOnPaste: true,
+          formatOnType: true,
         }}
       />
     </div>
