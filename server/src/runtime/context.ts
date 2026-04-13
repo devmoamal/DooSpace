@@ -2,11 +2,17 @@ import { type Method } from "@doospace/shared";
 import { Canvas } from "./canvas";
 import { Storage } from "./storage";
 
-type Handler = (req: DooRequest) => Promise<Response>;
-
-export interface DooRequest extends Request {
+export interface DooRequest<T = any> {
+  url: string;
+  method: string;
+  headers: Headers;
   params: Record<string, string>;
+  body: T;
 }
+
+type Handler<TResponse = any, TRequest = any> = (
+  req: DooRequest<TRequest>,
+) => Promise<TResponse | Response> | TResponse | Response;
 
 interface Route {
   method: string | "ALL";
@@ -15,7 +21,7 @@ interface Route {
   handler: Handler;
 }
 
-export class Context {
+export class Doo {
   private routes: Route[] = [];
   public logs: string[] = [];
   public canvas: Canvas;
@@ -26,23 +32,29 @@ export class Context {
     this.db = new Storage(dooId);
   }
 
-  get(path: string, handler: Handler) {
+  get<TResponse = any>(path: string, handler: Handler<TResponse, any>) {
     this.register("GET", path, handler);
   }
 
-  post(path: string, handler: Handler) {
+  post<TResponse = any, TRequest = any>(
+    path: string,
+    handler: Handler<TResponse, TRequest>,
+  ) {
     this.register("POST", path, handler);
   }
 
-  put(path: string, handler: Handler) {
+  put<TResponse = any, TRequest = any>(
+    path: string,
+    handler: Handler<TResponse, TRequest>,
+  ) {
     this.register("PUT", path, handler);
   }
 
-  delete(path: string, handler: Handler) {
+  delete<TResponse = any>(path: string, handler: Handler<TResponse, any>) {
     this.register("DELETE", path, handler);
   }
 
-  all(path: string, handler: Handler) {
+  all<TResponse = any>(path: string, handler: Handler<TResponse, any>) {
     this.register("ALL", path, handler);
   }
 
@@ -105,11 +117,30 @@ export class Context {
           params[key] = match[i + 1];
         });
 
-        const dooReq = request as DooRequest;
-        dooReq.params = params;
+        // Parse body if it's JSON
+        let body: any = null;
+        if (request.headers.get("content-type")?.includes("application/json")) {
+          try {
+            body = await request.clone().json();
+          } catch {
+            body = null;
+          }
+        }
+
+        // Create a safe, mutable request context instead of mutating the frozen standard Request object
+        const dooReq: DooRequest = {
+          params,
+          body,
+          url: request.url,
+          method: request.method,
+          headers: request.headers,
+          // Add any other needed raw request properties here
+        };
 
         try {
-          return await route.handler(dooReq);
+          const result = await route.handler(dooReq);
+          if (result instanceof Response) return result;
+          return this.json(result);
         } catch (e: any) {
           this.error(e.message);
           return new Response(e.message, { status: 500 });

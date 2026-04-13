@@ -1,4 +1,4 @@
-import { Context } from "./context";
+import { Doo } from "./context";
 
 export async function executeDoo(
   dooId: number,
@@ -27,14 +27,14 @@ export async function executeDoo(
   jsCode = jsCode.replace(/export\s+default\s+/g, "exports.default = ");
 
   // 3. Prepare the sandbox
-  const context = new Context(dooId);
+  const doo = new Doo(dooId);
 
   // 3. Execute the code to get the default export
   const wrapper = `
     const exports = {};
     const module = { exports };
     const require = (pkg) => {
-      if (pkg === "doospace") return { Context: arguments[0] };
+      if (pkg === "doospace") return { Doo: arguments[0] };
     };
     
     const doo = arguments[0];
@@ -46,7 +46,7 @@ export async function executeDoo(
 
   try {
     const dooFactory = new Function("DooInternal", wrapper);
-    const dooFunction = dooFactory(context);
+    const dooFunction = dooFactory(doo);
 
 
     if (typeof dooFunction !== "function") {
@@ -54,25 +54,25 @@ export async function executeDoo(
     }
 
     // 4. Initialize the Doo
-    dooFunction(context);
+    dooFunction(doo);
 
     // 5. Run the specific route
     const startTime = Date.now();
-    const response = await context.run(method, path, originalRequest);
+    const response = await doo.run(method, path, originalRequest);
     const duration = Date.now() - startTime;
 
     // 6. Return results
     return {
       response,
       duration,
-      ...context.getResults(),
+      ...doo.getResults(),
     };
   } catch (e: any) {
-    context.error(e.message);
+    doo.error(e.message);
     return {
       response: new Response(e.message, { status: 500 }),
       duration: 0,
-      ...context.getResults(),
+      ...doo.getResults(),
     };
   }
 }
