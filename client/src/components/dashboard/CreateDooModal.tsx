@@ -1,24 +1,21 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { cn } from "@/lib/cn";
 import { Textarea } from "@/components/ui/Textarea";
+import { Select } from "@/components/ui/Select";
 import { useDooForm } from "@/hooks/useDooForm";
+import { DOO_TEMPLATES, type DooTemplate } from "@/templates";
 
 interface CreateDooModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const BOILERPLATE = `export default function(ctx) {
-  ctx.get("/", async (req) => {
-    ctx.log("System initialized");
-    ctx.pixel(0, 0, "brand");
-    return ctx.json({ status: "online", Doo: "manifest" });
-  });
-}`;
-
 export function CreateDooModal({ isOpen, onClose }: CreateDooModalProps) {
+  const [selectedTemplate, setSelectedTemplate] = useState<DooTemplate>(DOO_TEMPLATES[0]);
+
   const {
     name,
     setName,
@@ -30,7 +27,7 @@ export function CreateDooModal({ isOpen, onClose }: CreateDooModalProps) {
   } = useDooForm({
     mode: "create",
     onClose,
-    boilerplate: BOILERPLATE,
+    boilerplate: selectedTemplate.code,
   });
 
   return (
@@ -48,26 +45,49 @@ export function CreateDooModal({ isOpen, onClose }: CreateDooModalProps) {
           </div>
         )}
 
-        <div className="flex flex-col">
-          <Input
-            label="Name"
-            placeholder="Name your Doo"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            helperText="What should we call this automated logic?"
-            horizontal
-            autoFocus
-            required
-          />
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-1">
+            <Select
+              label="Blueprint"
+              value={selectedTemplate.id}
+              onChange={(e) => {
+                const template = DOO_TEMPLATES.find((t) => t.id === e.target.value);
+                if (template) setSelectedTemplate(template);
+              }}
+              helperText={selectedTemplate.description}
+              horizontal
+            >
+              {DOO_TEMPLATES.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                </option>
+              ))}
+            </Select>
+          </div>
 
-          <Textarea
-            label="Description"
-            placeholder="What does this Doo do?"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            helperText="Optional context for your team members."
-            horizontal
-          />
+          <div className="h-px bg-border/40 w-full" />
+
+          <div className="flex flex-col gap-1">
+            <Input
+              label="Doo Name"
+              placeholder="e.g. User Management Engine"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              helperText="How should we identify this logic unit?"
+              horizontal
+              autoFocus
+              required
+            />
+
+            <Textarea
+              label="Purpose"
+              placeholder="What problem does this Doo solve?"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              helperText="Brief context for easier system orchestration."
+              horizontal
+            />
+          </div>
         </div>
 
         <div className="flex items-center justify-between gap-3 pt-4 border-t border-border/40 mt-4">
@@ -87,7 +107,7 @@ export function CreateDooModal({ isOpen, onClose }: CreateDooModalProps) {
             )}
             disabled={isPending}
           >
-            {isPending ? "Initializing..." : "Create Doo"}
+            {isPending ? "Initializing..." : `Deploy ${selectedTemplate.name}`}
           </Button>
         </div>
       </form>
