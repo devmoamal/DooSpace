@@ -9,11 +9,11 @@ interface SidebarSectionProps {
 
 export function SidebarSection({ title, isCollapsed, children }: SidebarSectionProps) {
   return (
-    <div className="space-y-1 mt-6 first:mt-0">
+    <div className="space-y-0.5 mt-4 first:mt-2">
       {!isCollapsed && (
-        <h3 className="px-5 mb-2 text-[10px] font-bold text-text/40 uppercase tracking-widest animate-in fade-in duration-300">
+        <p className="px-4 mb-1 text-[9px] font-semibold text-text-subtle uppercase tracking-[0.12em]">
           {title}
-        </h3>
+        </p>
       )}
       {children}
     </div>

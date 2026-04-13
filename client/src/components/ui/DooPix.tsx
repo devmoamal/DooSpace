@@ -8,21 +8,21 @@ interface DooPixProps {
 }
 
 const COLOR_MAP: Record<string, string> = {
-  white: "bg-surface",
-  brown: "bg-amber-900 shadow-inner",
-  yellow: "bg-yellow-400 shadow-inner",
-  red: "bg-red-600 shadow-inner",
-  green: "bg-emerald-600 shadow-inner",
-  blue: "bg-blue-600 shadow-inner",
-  purple: "bg-purple-600 shadow-inner",
-  brand: "bg-brand shadow-inner",
+  white:  "bg-surface",
+  brown:  "bg-amber-800",
+  yellow: "bg-yellow-400",
+  red:    "bg-red-500",
+  green:  "bg-emerald-500",
+  blue:   "bg-blue-500",
+  purple: "bg-purple-500",
+  brand:  "bg-brand",
 };
 
 export const DooPix: React.FC<DooPixProps> = ({ pixels, className, size = 160 }) => {
   return (
     <div
       className={cn(
-        "relative grid grid-cols-10 gap-0.5 overflow-hidden rounded-xl border border-border bg-bg shadow-sm p-1.5",
+        "relative grid grid-cols-10 gap-px overflow-hidden rounded border border-border bg-bg p-1",
         className
       )}
       style={{ width: size, aspectRatio: "10/4" }}
@@ -31,8 +31,8 @@ export const DooPix: React.FC<DooPixProps> = ({ pixels, className, size = 160 })
         <div
           key={i}
           className={cn(
-            "h-full w-full transition-colors duration-200 rounded-[2px]",
-            COLOR_MAP[color] || "bg-border/50"
+            "h-full w-full rounded-[1px]",
+            COLOR_MAP[color] || "bg-border"
           )}
         />
       ))}

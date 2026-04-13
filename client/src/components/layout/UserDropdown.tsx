@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { LogOut, LayoutDashboard, ChevronDown } from "lucide-react";
+import { LogOut, ChevronDown } from "lucide-react";
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown";
 import { cn } from "@/lib/cn";
 import { User } from "@/stores/auth.store";
@@ -26,24 +26,21 @@ export function UserDropdown({
   const trigger = (
     <button
       className={cn(
-        "flex items-center gap-3 p-2 rounded-md hover:bg-surface-lighter transition-all group w-full text-left cursor-pointer",
+        "flex items-center gap-2 px-2 py-1.5 rounded hover:bg-surface transition-colors w-full text-left cursor-pointer",
         hideLabels && "justify-center",
       )}
     >
-      <div className="w-6 h-6 rounded-md bg-brand/10 border border-brand/20 flex items-center justify-center text-brand text-[10px] font-bold uppercase shrink-0">
+      <div className="w-6 h-6 rounded bg-surface-lighter border border-border flex items-center justify-center text-text-muted text-[10px] font-bold uppercase shrink-0">
         {user.username.charAt(0)}
       </div>
       {!hideLabels && (
         <>
-          <div className="flex-1 min-w-0 animate-in fade-in slide-in-from-left-2 duration-300">
-            <p className="text-[13px] font-medium text-text truncate leading-none">
+          <div className="flex-1 min-w-0">
+            <p className="text-[12px] font-medium text-text truncate leading-none">
               {user.username}
             </p>
           </div>
-          <ChevronDown
-            size={14}
-            className="text-text-muted/40 group-hover:text-text-muted transition-colors shrink-0"
-          />
+          <ChevronDown size={13} className="text-text-subtle shrink-0" />
         </>
       )}
     </button>
@@ -55,19 +52,11 @@ export function UserDropdown({
       side={side}
       align={align}
       className={className}
-      contentClassName="w-56 overflow-hidden"
+      contentClassName="w-48 overflow-hidden"
     >
-      <Link to="/dashboard" className="block w-full">
-        <DropdownItem>
-          <LayoutDashboard size={14} />
-          <span>Dashboard</span>
-        </DropdownItem>
-      </Link>
-
-      <div className="border-t border-border/30 mx-2 my-1" />
-
+      <div className="border-b border-border mx-2 my-1" />
       <DropdownItem onClick={onLogout} danger>
-        <LogOut size={14} />
+        <LogOut size={13} />
         <span>Sign out</span>
       </DropdownItem>
     </Dropdown>

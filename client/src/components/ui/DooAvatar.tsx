@@ -9,11 +9,10 @@ interface DooAvatarProps {
 }
 
 const COLOR_MAP: Record<string, string> = {
-  sage: "bg-brand",
-  "sage-muted": "bg-brand/30",
+  sage:        "bg-brand",
+  "sage-muted": "bg-brand/25",
   transparent: "bg-transparent",
 };
-
 
 export const DooAvatar: React.FC<DooAvatarProps> = ({
   id,
@@ -24,11 +23,8 @@ export const DooAvatar: React.FC<DooAvatarProps> = ({
 
   return (
     <div
-      className={cn("relative bg-transparent p-1", className)}
-      style={{
-        width: size,
-        height: size,
-      }}
+      className={cn("relative bg-transparent", className)}
+      style={{ width: size, height: size }}
     >
       <div className="flex flex-wrap w-full h-full">
         {matrix.flat().map((color: string, i: number) => {
@@ -38,10 +34,7 @@ export const DooAvatar: React.FC<DooAvatarProps> = ({
           return (
             <div
               key={i}
-              className={cn(
-                "transition-colors duration-500 shrink-0",
-                COLOR_MAP[color],
-              )}
+              className={cn("shrink-0", COLOR_MAP[color])}
               style={{
                 width: "18%",
                 height: "25%",

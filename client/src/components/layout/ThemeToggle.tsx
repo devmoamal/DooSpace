@@ -7,17 +7,14 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="p-1.5 rounded-md hover:bg-surface-lighter transition-all group border border-transparent hover:border-border flex items-center justify-center text-text-muted hover:text-text"
+      className="p-1.5 rounded text-text-muted hover:text-text hover:bg-surface-lighter transition-colors cursor-pointer"
       title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+      aria-label="Toggle theme"
     >
-      {theme === "light" ? (
-        <Moon
-          size={18}
-          className="transition-transform group-hover:rotate-12"
-        />
-      ) : (
-        <Sun size={18} className="transition-transform group-hover:scale-110" />
-      )}
+      {theme === "light"
+        ? <Moon size={15} />
+        : <Sun size={15} />
+      }
     </button>
   );
 }

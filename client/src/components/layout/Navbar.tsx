@@ -17,27 +17,22 @@ function Navbar({ isAuthenticated, user, onLogout, className }: NavbarProps) {
   return (
     <nav
       className={cn(
-        "sticky top-6 mx-auto z-50 w-full max-w-7xl mt-6 px-4 py-2 backdrop-blur-xl rounded-full border border-brand/15 flex items-center justify-between flex-none",
+        "sticky top-0 z-50 w-full h-11 px-5 border-b border-border bg-bg flex items-center justify-between shrink-0",
         className,
       )}
     >
-      <Link to="/" className="flex items-center gap-2 group px-2">
+      <Link to="/" className="flex items-center gap-2">
         <Box size={16} className="text-brand" />
-        <span className="font-semibold text-xl tracking-tight">
-          DooSpace
-        </span>
+        <span className="font-semibold text-[13px] text-text">DooSpace</span>
       </Link>
 
       <div className="flex items-center gap-2">
         <ThemeToggle />
-        <div className="h-6 w-px bg-border mx-1" />
         {isAuthenticated ? (
           <UserDropdown user={user} onLogout={onLogout} />
         ) : (
           <Link to="/login">
-            <Button size="sm" className="px-6">
-              Sign In
-            </Button>
+            <Button size="sm">Sign In</Button>
           </Link>
         )}
       </div>

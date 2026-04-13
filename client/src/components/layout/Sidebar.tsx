@@ -4,7 +4,6 @@ import {
   Terminal,
   Activity,
   Database,
-  ShieldAlert,
   Settings,
   FileText,
   Box,
@@ -14,48 +13,18 @@ import {
 import { cn } from "@/lib/cn";
 import { UserDropdown } from "./UserDropdown";
 import { useAuthStore } from "@/stores/auth.store";
-import { ThemeToggle } from "./ThemeToggle";
 import { useUIStore } from "@/stores/ui.store";
+import { ThemeToggle } from "./ThemeToggle";
 import { SidebarItem } from "./sidebar/SidebarItem";
 import { SidebarSection } from "./sidebar/SidebarSection";
 
 const sidebarItems = [
-  {
-    icon: LayoutGrid,
-    label: "Overview",
-    href: "/dashboard",
-    section: "WORKSPACE",
-  },
-  { icon: Terminal, label: "Doos", href: "/doo", section: "WORKSPACE" },
-  {
-    icon: Activity,
-    label: "Requests",
-    href: "/requests",
-    section: "WORKSPACE",
-    badge: "3",
-    badgeColor: "bg-text text-bg",
-  },
-  { icon: Database, label: "DooBox", href: "/doobox", section: "WORKSPACE" },
-  {
-    icon: ShieldAlert,
-    label: "Secrets",
-    href: "/secrets",
-    section: "WORKSPACE",
-    disabled: true,
-  },
-  {
-    icon: Settings,
-    label: "Settings",
-    href: "/settings",
-    section: "PROJECT",
-    disabled: true,
-  },
-  {
-    icon: FileText,
-    label: "Docs",
-    href: "https://docs.doospace.com",
-    section: "PROJECT",
-  },
+  { icon: LayoutGrid, label: "Overview", href: "/dashboard", section: "WORKSPACE" },
+  { icon: Terminal,   label: "Doos",     href: "/doo",       section: "WORKSPACE" },
+  { icon: Activity,   label: "Requests", href: "/requests",  section: "WORKSPACE" },
+  { icon: Database,   label: "DooBox",   href: "/doobox",    section: "WORKSPACE" },
+  { icon: Settings,   label: "Settings", href: "/settings",  section: "PROJECT", disabled: true },
+  { icon: FileText,   label: "Docs",     href: "https://docs.doospace.com", section: "PROJECT" },
 ];
 
 export function Sidebar() {
@@ -70,9 +39,7 @@ export function Sidebar() {
         .map((item) => {
           const isActive =
             location.pathname === item.href ||
-            (item.href === "/doo" &&
-              location.pathname === "/doo" &&
-              !(location.search as any).view);
+            (item.href === "/doo" && location.pathname === "/doo");
           return (
             <SidebarItem
               key={item.label}
@@ -88,71 +55,50 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "border-r border-border bg-surface flex flex-col h-full shrink-0 transition-[width] duration-200 ease-in-out will-change-[width] relative z-20 overflow-hidden",
-        isSidebarCollapsed ? "w-[68px]" : "w-[240px]",
+        "border-r border-border bg-bg flex flex-col h-full shrink-0 transition-[width] duration-200 ease-in-out overflow-hidden",
+        isSidebarCollapsed ? "w-[52px]" : "w-[216px]",
       )}
     >
-      <div
-        className={cn(
-          "flex flex-col h-full",
-          !isSidebarCollapsed ? "min-w-[240px]" : "min-w-[68px]",
-        )}
-      >
-        {/* Header / Logo */}
-        <div
-          className={cn(
-            "flex shrink-0 p-5 transition-all duration-200",
-            isSidebarCollapsed
-              ? "justify-center"
-              : "justify-between items-center",
-          )}
-        >
+      <div className={cn(
+        "flex flex-col h-full",
+        !isSidebarCollapsed ? "min-w-[216px]" : "min-w-[52px]",
+      )}>
+        {/* Logo + controls */}
+        <div className={cn(
+          "flex items-center shrink-0 px-3 py-3 border-b border-border gap-2",
+          isSidebarCollapsed ? "justify-center flex-col" : "justify-between",
+        )}>
           {!isSidebarCollapsed && (
-            <Link
-              to="/"
-              className="flex items-center gap-2 group px-2 shrink-0 animate-in fade-in duration-200"
-            >
-              <Box size={24} className="text-brand shrink-0" />
-              <span className="font-semibold text-xl tracking-tight text-text whitespace-nowrap">
+            <Link to="/" className="flex items-center gap-2 shrink-0 min-w-0">
+              <Box size={17} className="text-brand shrink-0" />
+              <span className="font-semibold text-[13px] text-text whitespace-nowrap truncate">
                 DooSpace
               </span>
             </Link>
           )}
-
-          <div
-            className={cn(
-              "flex items-center gap-1",
-              isSidebarCollapsed ? "flex-col" : "flex-row",
-            )}
-          >
+          <div className={cn("flex items-center gap-0.5", isSidebarCollapsed && "flex-col")}>
+            <ThemeToggle />
             <button
               onClick={toggleSidebar}
-              className="p-1.5 rounded-md hover:bg-surface-lighter transition-all group border border-transparent hover:border-border text-text-muted hover:text-text cursor-pointer"
-              title={isSidebarCollapsed ? "Expand Sidebar" : "Minimize Sidebar"}
+              className="p-1.5 rounded text-text-muted hover:text-text hover:bg-surface-lighter transition-colors cursor-pointer"
+              title={isSidebarCollapsed ? "Expand" : "Collapse"}
             >
-              {isSidebarCollapsed ? (
-                <PanelLeft size={18} />
-              ) : (
-                <PanelLeftClose size={18} />
-              )}
+              {isSidebarCollapsed ? <PanelLeft size={15} /> : <PanelLeftClose size={15} />}
             </button>
-            {!isSidebarCollapsed && <ThemeToggle />}
           </div>
         </div>
 
-        {/* Scrollable Navigation */}
-        <div className="flex-1 overflow-y-auto py-2 custom-scrollbar no-scrollbar overflow-x-hidden">
+        {/* Nav */}
+        <div className="flex-1 overflow-y-auto py-2 no-scrollbar overflow-x-hidden">
           {renderSection("WORKSPACE")}
           {renderSection("PROJECT")}
         </div>
 
-        {/* Footer / User Profile */}
-        <div
-          className={cn(
-            "p-4 border-t border-border mt-auto transition-all duration-150",
-            isSidebarCollapsed ? "px-2" : "p-4",
-          )}
-        >
+        {/* User */}
+        <div className={cn(
+          "border-t border-border mt-auto",
+          isSidebarCollapsed ? "px-1.5 py-2" : "p-2",
+        )}>
           {user ? (
             <UserDropdown
               user={user}
@@ -168,4 +114,3 @@ export function Sidebar() {
     </aside>
   );
 }
-

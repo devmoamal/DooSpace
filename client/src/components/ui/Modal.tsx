@@ -20,7 +20,6 @@ export const Modal: React.FC<ModalProps> = ({
   title,
   subtitle,
   children,
-  icon,
   maxWidth = "md",
   className,
 }) => {
@@ -47,54 +46,42 @@ export const Modal: React.FC<ModalProps> = ({
     xl: "max-w-xl",
   };
 
-  const modalContent = (
-    <div className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6 pointer-events-none">
+  return createPortal(
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-xs pointer-events-auto animate-in fade-in duration-300"
+      <div
+        className="absolute inset-0 bg-black/40"
         onClick={onClose}
       />
-      
-      {/* Modal Container */}
+      {/* Panel */}
       <div className={cn(
-        "relative w-full bg-bg border border-border shadow-2xl rounded-lg overflow-hidden pointer-events-auto animate-in zoom-in-95 fade-in duration-200",
+        "relative w-full bg-bg border border-border rounded-lg overflow-hidden",
         maxWidthClasses[maxWidth],
         className
       )}>
-        {/* Close Button */}
-        <button 
+        <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-lg hover:bg-bg text-text-muted hover:text-text transition-all duration-200 z-10 active:scale-95"
+          className="absolute top-3.5 right-3.5 p-1 text-text-subtle hover:text-text-muted transition-colors z-10 rounded hover:bg-surface"
         >
-          <X size={18} />
+          <X size={15} />
         </button>
 
-        <div className="p-0">
-          {(title || icon) && (
-            <header className="px-6 py-4 border-b border-border/40">
-              <div className="flex items-center gap-3">
-                {icon && (
-                  <div className="text-brand shrink-0">
-                    {icon}
-                  </div>
-                )}
-                <h2 className="text-xl font-semibold text-text tracking-tight">{title}</h2>
-              </div>
-              {subtitle && (
-                <p className="text-xs text-text-muted mt-1 leading-relaxed max-w-[95%]">
-                  {subtitle}
-                </p>
-              )}
-            </header>
-          )}
+        {title && (
+          <header className="px-5 pt-5 pb-4 border-b border-border">
+            <h2 className="text-[13px] font-semibold text-text pr-6">{title}</h2>
+            {subtitle && (
+              <p className="text-[11px] text-text-muted mt-0.5 leading-relaxed">
+                {subtitle}
+              </p>
+            )}
+          </header>
+        )}
 
-          <div className="p-5">
-            {children}
-          </div>
+        <div className="p-5">
+          {children}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
-
-  return createPortal(modalContent, document.body);
 };

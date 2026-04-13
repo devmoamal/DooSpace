@@ -21,54 +21,37 @@ export function SidebarItem({
   isCollapsed,
   disabled,
   badge,
-  badgeColor,
 }: SidebarItemProps) {
   return (
     <Link
       to={disabled ? "#" : href}
       className={cn(
-        "flex items-center px-3 py-1.5 mx-2 rounded-md text-[13px] font-medium transition-all group relative",
+        "flex items-center px-2.5 py-1.5 mx-1.5 rounded text-[12px] font-medium transition-colors group",
         isActive && !disabled
-          ? "bg-brand/10 text-brand"
-          : "text-text-muted hover:bg-surface-lighter hover:text-text",
-        disabled && "opacity-50 cursor-not-allowed pointer-events-none",
+          ? "bg-surface text-text"
+          : "text-text-muted hover:bg-surface hover:text-text",
+        disabled && "opacity-40 cursor-not-allowed pointer-events-none",
         isCollapsed ? "justify-center" : "justify-between",
       )}
       title={isCollapsed ? label : undefined}
     >
-      <div
-        className={cn(
-          "flex items-center",
-          isCollapsed ? "gap-0" : "gap-3",
-        )}
-      >
+      <div className={cn("flex items-center", isCollapsed ? "gap-0" : "gap-2.5")}>
         <Icon
-          size={16}
+          size={15}
           className={cn(
-            "transition-colors shrink-0",
-            isActive && !disabled
-              ? "text-brand"
-              : "text-text-muted group-hover:text-text",
+            "shrink-0 transition-colors",
+            isActive && !disabled ? "text-text" : "text-text-subtle group-hover:text-text-muted",
           )}
         />
-        <span
-          className={cn(
-            "transition-all duration-300 origin-left whitespace-nowrap",
-            isCollapsed
-              ? "w-0 opacity-0 scale-90"
-              : "w-auto opacity-100 scale-100",
-          )}
-        >
+        <span className={cn(
+          "transition-all duration-200 origin-left whitespace-nowrap",
+          isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100",
+        )}>
           {label}
         </span>
       </div>
       {!isCollapsed && badge && (
-        <span
-          className={cn(
-            "px-2 py-0.5 rounded-full text-[10px] font-bold animate-in zoom-in duration-300",
-            badgeColor || "bg-border/40 text-text/50",
-          )}
-        >
+        <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-surface-lighter text-text-muted">
           {badge}
         </span>
       )}

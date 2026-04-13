@@ -2,7 +2,7 @@ import React from "react";
 import { cn } from "@/lib/cn";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "outline" | "ghost";
+  variant?: "primary" | "secondary" | "outline" | "ghost" | "danger";
   size?: "sm" | "md" | "lg";
 }
 
@@ -14,23 +14,27 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   const variants = {
     primary:
-      "bg-[#3ecf8e] text-[#052814] hover:bg-[#32b37a] border-t border-[#6ee7b7]/30 shadow-[0_1px_2px_rgba(0,0,0,0.1)] font-semibold antialiased",
+      "bg-brand text-white hover:bg-brand/90 active:bg-brand/80 font-medium",
     secondary:
-      "bg-[#2e2e2e] text-text border border-[#3e3e3e] hover:bg-[#3e3e3e] hover:border-[#4e4e4e] shadow-sm",
-    outline: "bg-transparent border border-border text-text hover:bg-surface-lighter hover:border-text/20 shadow-sm",
-    ghost: "text-text-muted hover:text-text hover:bg-surface-lighter",
+      "bg-surface text-text border border-border hover:bg-surface-lighter transition-colors font-medium",
+    outline:
+      "bg-transparent border border-border text-text-muted hover:bg-surface hover:text-text transition-colors",
+    ghost:
+      "bg-transparent text-text-muted hover:text-text hover:bg-surface transition-colors",
+    danger:
+      "bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-colors font-medium",
   };
 
   const sizes = {
-    sm: "px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider",
-    md: "px-4 py-2 text-sm font-semibold",
-    lg: "px-6 py-3 text-base font-bold",
+    sm: "px-2.5 py-1.5 text-[11px] font-medium uppercase tracking-wider rounded",
+    md: "px-4 py-2 text-[13px] rounded",
+    lg: "px-5 py-2.5 text-[14px] rounded",
   };
 
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center rounded-md transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand/40 focus:ring-offset-2 focus:ring-offset-bg",
+        "inline-flex items-center justify-center transition-colors disabled:opacity-40 disabled:pointer-events-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40",
         variants[variant],
         sizes[size],
         className,

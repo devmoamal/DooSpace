@@ -1,15 +1,13 @@
 import React from "react";
 import { cn } from "@/lib/cn";
 
-interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  glass?: boolean;
-}
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {}
 
-export const Card: React.FC<CardProps> = ({ className, glass, ...props }) => {
+export const Card: React.FC<CardProps> = ({ className, ...props }) => {
   return (
     <div
       className={cn(
-        "rounded-xl border border-border bg-surface shadow-[0_1px_3px_rgba(0,0,0,0.1)] transition-all duration-300",
+        "rounded-md border border-border bg-bg transition-colors",
         className
       )}
       {...props}

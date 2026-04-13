@@ -1,95 +1,88 @@
 @import "tailwindcss";
 
+/* ============================================
+   DESIGN TOKENS — light (default)
+   ============================================ */
 @theme {
-  --color-brand: #3ecf8e;
-  --color-brand-muted: #3ecf8e15;
-  --color-bg: #ffffff;
-  --color-surface: #f9f9f9;
-  --color-text: #171717;
-  --color-text-muted: #646464;
-  --color-border: #e2e2e2;
+  --color-brand:         #3ecf8e;
+  --color-brand-muted:   rgba(62, 207, 142, 0.12);
+
+  --color-bg:            #ffffff;
+  --color-surface:       #f7f7f7;
+  --color-surface-lighter: #f0f0f0;
+  --color-surface-overlay: #e8e8e8;
+
+  --color-border:        #ebebeb;
+  --color-border-hover:  #d4d4d4;
+
+  --color-text:          #111111;
+  --color-text-muted:    #6e6e6e;
+  --color-text-subtle:   #adadad;
 }
 
+/* ============================================
+   DARK MODE — toggled by .dark on <html>
+   ============================================ */
 .dark {
-  --color-bg: #121212;
-  --color-surface: #171717;
-  --color-surface-lighter: #222222;
-  --color-surface-overlay: #2a2a2a;
-  --color-border: #232323;
-  --color-text: #ededed;
-  --color-text-muted: #8b8b8b;
-  --color-brand: #3ecf8e;
+  --color-bg:            #0f0f0f;
+  --color-surface:       #161616;
+  --color-surface-lighter: #1f1f1f;
+  --color-surface-overlay: #282828;
+
+  --color-border:        #242424;
+  --color-border-hover:  #333333;
+
+  --color-text:          #ededed;
+  --color-text-muted:    #8a8a8a;
+  --color-text-subtle:   #4e4e4e;
 }
 
+/* ============================================
+   BASE
+   ============================================ */
 @layer base {
+  html {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
   * {
-    @apply border-border;
+    border-color: var(--color-border);
+    box-sizing: border-box;
   }
 
   body {
-    @apply bg-bg text-text antialiased;
-    font-family: "Inter", system-ui, sans-serif;
-  }
-
-  h1,
-  h2,
-  h3,
-  h4 {
-    @apply font-semibold tracking-tight text-text;
-    font-family: "Inter", system-ui, sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
+/* ============================================
+   UTILITIES
+   ============================================ */
 @layer utilities {
+  /* Custom grid columns */
   .grid-cols-24 {
     grid-template-columns: repeat(24, minmax(0, 1fr));
   }
-
   .grid-cols-10 {
     grid-template-columns: repeat(10, minmax(0, 1fr));
   }
 
-  .shadow-soft {
-    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
-  }
+  /* Scrollbars */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-  @keyframes float {
-    0%,
-    100% {
-      transform: translateY(0) rotate(0deg);
-    }
-    50% {
-      transform: translateY(-20px) rotate(5deg);
-    }
-  }
-
-  /* Hide scrollbar for Chrome, Safari and Opera */
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-
-  /* Hide scrollbar for IE, Edge and Firefox */
-  .no-scrollbar {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
-  }
-
-  /* Technical minimalist scrollbar */
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
+  .custom-scrollbar::-webkit-scrollbar { width: 3px; height: 3px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: var(--color-border);
-    border-radius: 10px;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: var(--color-brand);
+    background: var(--color-border-hover);
+    border-radius: 999px;
   }
 }
