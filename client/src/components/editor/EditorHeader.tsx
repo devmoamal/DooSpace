@@ -1,4 +1,4 @@
-import { Save, ChevronLeft, Check } from "lucide-react";
+import { Save, ChevronLeft, Check, Terminal } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
@@ -13,7 +13,7 @@ interface EditorHeaderProps {
   isSyncing?: boolean;
 }
 
-export function EditorHeader({ name, onSave, isSaving }: EditorHeaderProps) {
+export function EditorHeader({ id, name, onSave, isSaving }: EditorHeaderProps) {
   const [justSaved, setJustSaved] = useState(false);
   const isMac = typeof navigator !== "undefined" && /mac/i.test(navigator.platform);
 
@@ -50,6 +50,17 @@ export function EditorHeader({ name, onSave, isSaving }: EditorHeaderProps) {
         <span className="text-[10px] font-mono text-text-subtle hidden sm:block">
           {isMac ? "⌘S" : "Ctrl+S"}
         </span>
+
+        <Link to="/doo/$id/playground" params={{ id: String(id) }}>
+          <Button
+            size="sm"
+            variant="secondary"
+            className="gap-1.5"
+          >
+            <Terminal size={13} className="fill-current" />
+            Playground
+          </Button>
+        </Link>
 
         <Button
           size="sm"
