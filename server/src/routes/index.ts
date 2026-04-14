@@ -5,6 +5,7 @@ import settingsRoutes from "./settings.route";
 import authRoutes from "./auth.route";
 import dooboxRoutes from "./doobox.route";
 import overviewRoutes from "./overview.route";
+import secretsRoutes from "./secrets.route";
 
 const router = new Hono();
 
@@ -14,6 +15,7 @@ router.route("/requests", requestsRoutes);
 router.route("/settings", settingsRoutes);
 router.route("/doobox", dooboxRoutes);
 router.route("/overview", overviewRoutes);
+router.route("/secrets", secretsRoutes);
 
 export default router;
 
