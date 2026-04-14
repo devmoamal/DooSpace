@@ -1,223 +1,157 @@
 /**
- * DooSpace Type Definitions (Doo Driver)
- * This file provides the TypeScript definitions for the sandboxed Doo environment.
+ * DooSpace Driver — type definitions injected into the Monaco editor sandbox.
  */
 
 export const DOO_TYPES = `
-  /**
-   * DooSpace Environment - Types and APIs
-   * This module defines the available globals and types in the Doo sandbox.
-   */
-  declare module "doospace" {
-    /**
-     * The Doo instance provides access to the storage, canvas, and routing systems.
-     */
-    export interface Doo {
-      /**
-       * **DooBox Key-Value Storage**
-       * Persist data across executions. Each Doo unit has its own private storage.
-       */
-      doobox: DooBox;
-      
-      /**
-       * **24x24 Visual Canvas**
-       * Directly manipulate the pixel display.
-       */
-      canvas: DooCanvas;
-      
-      /**
-       * **Execution Logs**
-       * Access the logs generated during the current execution.
-       */
-      logs: string[];
+declare module "doospace" {
 
-      /**
-       * Register a GET endpoint.
-       * 
-       * @param path The route path (e.g., "/items", "/items/:id")
-       * @param handler Function to handle the request
-       * @example
-       * doo.get("/hello", (req) => {
-       *   return { message: "Hello World" };
-       * });
-       */
-      get<TResponse = any>(path: string, handler: (req: DooRequest<any>) => Promise<TResponse | Response> | TResponse | Response): void;
+  // ── Routing ──────────────────────────────────────────────────────────────
 
-      /**
-       * Register a POST endpoint.
-       * 
-       * @param path The route path
-       * @handler Function to handle the request. Access the body via req.body.
-       * @example
-       * doo.post("/submit", async (req) => {
-       *   const data = req.body;
-       *   await doo.doobox.set("last_submission", data);
-       *   return { success: true };
-       * });
-       */
-      post<TResponse = any, TRequest = any>(path: string, handler: (req: DooRequest<TRequest>) => Promise<TResponse | Response> | TResponse | Response): void;
-
-      /**
-       * Register a PUT endpoint.
-       */
-      put<TResponse = any, TRequest = any>(path: string, handler: (req: DooRequest<TRequest>) => Promise<TResponse | Response> | TResponse | Response): void;
-
-      /**
-       * Register a DELETE endpoint.
-       */
-      delete<TResponse = any>(path: string, handler: (req: DooRequest<any>) => Promise<TResponse | Response> | TResponse | Response): void;
-
-      /**
-       * Register a handler for ALL HTTP methods.
-       */
-      all<TResponse = any>(path: string, handler: (req: DooRequest<any>) => Promise<TResponse | Response> | TResponse | Response): void;
-
-      /**
-       * Shortcut to draw a pixel on the canvas.
-       * @param x X coordinate (0-23)
-       * @param y Y coordinate (0-23)
-       * @param color Hex color or brand color name
-       */
-      pixel(x: number, y: number, color: string): void;
-
-      /**
-       * Fills the entire canvas with a single color.
-       * @param color Hex color or brand color name
-       */
-      fill(color: string): void;
-
-      /**
-       * Draws a rectangle on the canvas.
-       */
-      rect(x: number, y: number, w: number, h: number, color: string): void;
-
-      /**
-       * Helper to create a JSON Response.
-       * @param data The object to serialize
-       * @param status HTTP status code (default 200)
-       */
-      json(data: any, status?: number): Response;
-
-      /**
-       * Helper to create a plain text Response.
-       * @param data The string content
-       * @param status HTTP status code (default 200)
-       */
-      text(data: string, status?: number): Response;
-
-      /**
-       * Log a message to the Doo console.
-       * @param message Message to log
-       */
-      log(message: any): void;
-
-      /**
-       * Log an error message to the Doo console.
-       * @param message Error message
-       */
-      error(message: any): void;
-    }
-
-    /**
-     * Represents an incoming HTTP request.
-     */
-    export interface DooRequest<T = any> {
-      /** The full request URL */
-      url: string;
-      /** HTTP method (GET, POST, etc.) */
-      method: string;
-      /** Standard Web Headers object */
-      headers: Headers;
-      /** URL parameters extracted from the path (e.g., { id: "123" }) */
-      params: Record<string, string>;
-      /** Query parameters (e.g., /?name=bob -> { name: "bob" }) */
-      query: Record<string, string>;
-      /** Parsed JSON body (for POST/PUT requests) */
-      body: T;
-    }
-
-    /**
-     * DooBox Key-Value storage interface.
-     */
-    export interface DooBox {
-      /**
-       * Retrieve a value by key.
-       * @template T The expected type of the value
-       */
-      get<T = any>(key: string): Promise<T | null>;
-      
-      /**
-       * Save a value.
-       * @param key Unique identifier
-       * @param value Data to save (must be JSON serializable)
-       * @param ttlSeconds Optional time-to-live in seconds
-       */
-      set(key: string, value: any, ttlSeconds?: number): Promise<void>;
-      
-      /**
-       * Remove an item from storage.
-       * @returns true if the item was deleted
-       */
-      delete(key: string): Promise<boolean>;
-      
-      /**
-       * List all keys in this Doo's storage.
-       */
-      list(): Promise<string[]>;
-
-      /**
-       * Clear all data from this Doo's storage.
-       */
-      clear(): Promise<void>;
-    }
-
-    /**
-     * Canvas manipulation interface.
-     */
-    export interface DooCanvas {
-      /** Set pixel color at (x, y) */
-      set(x: number, y: number, color: string): void;
-      /** Fill the entire canvas with color */
-      fill(color: string): void;
-      /** Reset canvas to default */
-      clear(): void;
-      /** Draw a rectangle */
-      rect(x: number, y: number, w: number, h: number, color: string): void;
-      /** Get the full 24x24 pixel grid */
-      getPixels(): string[][];
-    }
+  export interface DooRequest<T = any> {
+    /** Full request URL */
+    url: string;
+    /** HTTP method */
+    method: string;
+    /** Web Headers object */
+    headers: Headers;
+    /** Path params extracted from the route (e.g. /users/:id → { id: "1" }) */
+    params: Record<string, string>;
+    /** Query string params (e.g. ?page=2 → { page: "2" }) */
+    query: Record<string, string>;
+    /** Parsed JSON body for POST/PUT/PATCH */
+    body: T;
   }
 
-  /**
-   * The global Doo instance provided by the environment.
-   */
-  declare const doo: import("doospace").Doo;
+  type Handler<TRes = any, TReq = any> =
+    (req: DooRequest<TReq>) => Promise<TRes | Response> | TRes | Response;
+
+  export interface Doo {
+    /** Register a GET handler */
+    get<TRes = any>(path: string, handler: Handler<TRes>): void;
+    /** Register a POST handler */
+    post<TRes = any, TReq = any>(path: string, handler: Handler<TRes, TReq>): void;
+    /** Register a PUT handler */
+    put<TRes = any, TReq = any>(path: string, handler: Handler<TRes, TReq>): void;
+    /** Register a DELETE handler */
+    delete<TRes = any>(path: string, handler: Handler<TRes>): void;
+    /** Register a PATCH handler */
+    patch<TRes = any, TReq = any>(path: string, handler: Handler<TRes, TReq>): void;
+    /** Register a handler for every HTTP method */
+    all<TRes = any>(path: string, handler: Handler<TRes>): void;
+
+    /** DooBox storage for this Doo */
+    doobox: DooBox;
+    /** User secrets (SCREAMING_SNAKE_CASE keys) */
+    secrets: DooSecrets;
+    /** 24×24 pixel canvas */
+    canvas: DooCanvas;
+
+    /** Return a JSON response */
+    json(data: any, status?: number): Response;
+    /** Return a plain-text response */
+    text(data: string, status?: number): Response;
+    /** Log a message */
+    log(message: any): void;
+    /** Log an error */
+    error(message: any): void;
+    /** Draw a single pixel on the canvas (0–23) */
+    pixel(x: number, y: number, color: string): void;
+    /** Fill the entire canvas */
+    fill(color: string): void;
+    /** Draw a rectangle */
+    rect(x: number, y: number, w: number, h: number, color: string): void;
+  }
+
+  // ── DooBox ───────────────────────────────────────────────────────────────
+
+  export interface DooBox {
+    /** Get a stored value by key */
+    get<T = any>(key: string): Promise<T | null>;
+    /** Set a value, optionally with a TTL in seconds */
+    set(key: string, value: any, ttlSeconds?: number): Promise<void>;
+    /** Delete a key — returns true if it existed */
+    delete(key: string): Promise<boolean>;
+    /** List all keys */
+    list(): Promise<string[]>;
+    /** Clear all data */
+    clear(): Promise<void>;
+  }
+
+  // ── Secrets ──────────────────────────────────────────────────────────────
 
   /**
-   * The Doo interface for type annotations.
+   * User secrets — set them in the Secrets page.
+   * Access by SCREAMING_SNAKE_CASE name.
+   *
+   * @example
+   * const token = secrets.MY_API_TOKEN; // string | undefined
    */
-  type Doo = import("doospace").Doo;
+  export type DooSecrets = Record<string, string | undefined>;
+
+  // ── Canvas ───────────────────────────────────────────────────────────────
+
+  export interface DooCanvas {
+    set(x: number, y: number, color: string): void;
+    fill(color: string): void;
+    clear(): void;
+    rect(x: number, y: number, w: number, h: number, color: string): void;
+    getPixels(): string[][];
+  }
+
+  // ── callDoo ──────────────────────────────────────────────────────────────
 
   /**
-   * Represents an incoming HTTP request.
+   * Client for calling other Doos directly — no HTTP hop.
+   *
+   * @example
+   * import { callDoo } from "doospace";
+   *
+   * const users = await callDoo.get(13, "/users");
+   * const user  = await callDoo.post(13, "/users", { name: "moamal" });
+   * await callDoo.put(13, "/users/1", { name: "updated" });
+   * await callDoo.delete(13, "/users/1");
    */
-  type DooRequest<T = any> = import("doospace").DooRequest<T>;
+  export interface DooCallClient {
+    get<T = any>(dooId: number, path: string): Promise<T>;
+    post<T = any>(dooId: number, path: string, body?: any): Promise<T>;
+    put<T = any>(dooId: number, path: string, body?: any): Promise<T>;
+    delete<T = any>(dooId: number, path: string): Promise<T>;
+    patch<T = any>(dooId: number, path: string, body?: any): Promise<T>;
+  }
 
-  /** Standard Web APIs available in the sandbox */
-  declare function fetch(input: string | Request | URL, init?: RequestInit): Promise<Response>;
-  declare const Headers: {
-    new (init?: HeadersInit): Headers;
-    prototype: Headers;
-  };
-  declare const Request: {
-    new (input: string | Request | URL, init?: RequestInit): Request;
-    prototype: Request;
-  };
-  declare const Response: {
-    new (body?: BodyInit | null, init?: ResponseInit): Response;
-    prototype: Response;
-    error(): Response;
-    redirect(url: string | URL, status?: number): Response;
-    json(data: any, init?: ResponseInit): Response;
-  };
+  // ── Module exports ───────────────────────────────────────────────────────
+
+  export const doobox:  DooBox;
+  export const secrets: DooSecrets;
+  export const callDoo: DooCallClient;
+}
+
+// ── Globals available without import ─────────────────────────────────────────
+
+/** Current Doo instance — use to register routes */
+declare const doo: import("doospace").Doo;
+
+/** Key-value storage for this Doo */
+declare const doobox: import("doospace").DooBox;
+
+/** User secrets (SCREAMING_SNAKE_CASE) */
+declare const secrets: import("doospace").DooSecrets;
+
+/** Call other Doos directly */
+declare const callDoo: import("doospace").DooCallClient;
+
+type Doo        = import("doospace").Doo;
+type DooRequest<T = any> = import("doospace").DooRequest<T>;
+
+// ── Standard Web APIs ─────────────────────────────────────────────────────────
+declare function fetch(input: string | Request | URL, init?: RequestInit): Promise<Response>;
+declare const Headers:  { new (init?: HeadersInit): Headers;  prototype: Headers;  };
+declare const Request:  { new (input: string | Request | URL, init?: RequestInit): Request;  prototype: Request;  };
+declare const Response: {
+  new (body?: BodyInit | null, init?: ResponseInit): Response;
+  prototype: Response;
+  error(): Response;
+  redirect(url: string | URL, status?: number): Response;
+  json(data: any, init?: ResponseInit): Response;
+};
 `;
