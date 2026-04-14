@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SecretsRouteImport } from './routes/secrets'
 import { Route as RequestsRouteImport } from './routes/requests'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DooboxRouteImport } from './routes/doobox'
@@ -18,6 +19,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DooIndexRouteImport } from './routes/doo/index'
 import { Route as DooIdRouteImport } from './routes/doo/$id'
 
+const SecretsRoute = SecretsRouteImport.update({
+  id: '/secrets',
+  path: '/secrets',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RequestsRoute = RequestsRouteImport.update({
   id: '/requests',
   path: '/requests',
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/doobox': typeof DooboxRoute
   '/login': typeof LoginRoute
   '/requests': typeof RequestsRoute
+  '/secrets': typeof SecretsRoute
   '/doo/$id': typeof DooIdRoute
   '/doo/': typeof DooIndexRoute
 }
@@ -75,6 +82,7 @@ export interface FileRoutesByTo {
   '/doobox': typeof DooboxRoute
   '/login': typeof LoginRoute
   '/requests': typeof RequestsRoute
+  '/secrets': typeof SecretsRoute
   '/doo/$id': typeof DooIdRoute
   '/doo': typeof DooIndexRoute
 }
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   '/doobox': typeof DooboxRoute
   '/login': typeof LoginRoute
   '/requests': typeof RequestsRoute
+  '/secrets': typeof SecretsRoute
   '/doo/$id': typeof DooIdRoute
   '/doo/': typeof DooIndexRoute
 }
@@ -98,6 +107,7 @@ export interface FileRouteTypes {
     | '/doobox'
     | '/login'
     | '/requests'
+    | '/secrets'
     | '/doo/$id'
     | '/doo/'
   fileRoutesByTo: FileRoutesByTo
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/doobox'
     | '/login'
     | '/requests'
+    | '/secrets'
     | '/doo/$id'
     | '/doo'
   id:
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/doobox'
     | '/login'
     | '/requests'
+    | '/secrets'
     | '/doo/$id'
     | '/doo/'
   fileRoutesById: FileRoutesById
@@ -128,10 +140,18 @@ export interface RootRouteChildren {
   DooboxRoute: typeof DooboxRoute
   LoginRoute: typeof LoginRoute
   RequestsRoute: typeof RequestsRoute
+  SecretsRoute: typeof SecretsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/secrets': {
+      id: '/secrets'
+      path: '/secrets'
+      fullPath: '/secrets'
+      preLoaderRoute: typeof SecretsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/requests': {
       id: '/requests'
       path: '/requests'
@@ -210,6 +230,7 @@ const rootRouteChildren: RootRouteChildren = {
   DooboxRoute: DooboxRoute,
   LoginRoute: LoginRoute,
   RequestsRoute: RequestsRoute,
+  SecretsRoute: SecretsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
