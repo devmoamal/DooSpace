@@ -1,10 +1,16 @@
 import { dooboxRepository } from "@/repositories/doobox.repository";
 
+type TraceFn = (color: string) => void;
+
 export class DooBox {
-  constructor(private dooId: number) {}
+  constructor(
+    private dooId: number,
+    private traceFn?: TraceFn,
+  ) {}
 
   async get<T = any>(key: string): Promise<T | null> {
     const item = await dooboxRepository.get(this.dooId, key);
+    this.traceFn?.("db");   // amber — db read
     return item ? (item.value as T) : null;
   }
 
@@ -13,9 +19,11 @@ export class DooBox {
       ? new Date(Date.now() + ttlSeconds * 1000)
       : undefined;
     await dooboxRepository.set(this.dooId, key, value, expireAt);
+    this.traceFn?.("db");   // amber — db write
   }
 
   async delete(key: string): Promise<boolean> {
+    this.traceFn?.("error"); // red — deletion
     return await dooboxRepository.delete(this.dooId, key);
   }
 

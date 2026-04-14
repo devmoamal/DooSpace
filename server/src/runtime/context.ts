@@ -1,6 +1,9 @@
 import { type Method } from "@doospace/shared";
-import { Canvas } from "./canvas";
 import { DooBox } from "./doobox";
+import { DooSecrets } from "./secrets";
+
+// Trace event colors
+export type TraceColor = "log" | "error" | "db" | "fetch" | "call" | "brand" | "purple";
 
 export interface DooRequest<T = any> {
   url: string;
@@ -25,12 +28,18 @@ interface Route {
 export class Doo {
   private routes: Route[] = [];
   public logs: string[] = [];
-  public canvas: Canvas;
+  public trace: string[] = [];   // flat list of event colors
   public doobox: DooBox;
+  public secrets: DooSecrets;
 
-  constructor(dooId: number) {
-    this.canvas = new Canvas();
-    this.doobox = new DooBox(dooId);
+  constructor(dooId: number, secretsMap: Record<string, string> = {}) {
+    this.doobox = new DooBox(dooId, (color) => this.trace.push(color));
+    this.secrets = new DooSecrets(secretsMap);
+  }
+
+  /** Add a trace event pixel (used internally and by callDoo client) */
+  _trace(color: string) {
+    this.trace.push(color);
   }
 
   get<TResponse = any>(path: string, handler: Handler<TResponse, any>) {
@@ -60,7 +69,6 @@ export class Doo {
   }
 
   private register(method: string, path: string, handler: Handler) {
-    // Simple regex parser for :params
     const keys: string[] = [];
     const pattern = path
       .replace(/:([^/]+)/g, (_, key) => {
@@ -77,20 +85,7 @@ export class Doo {
     });
   }
 
-  // Canvas Helpers
-  pixel(x: number, y: number, color: string) {
-    this.canvas.set(x, y, color);
-  }
-
-  fill(color: string) {
-    this.canvas.fill(color);
-  }
-
-  rect(x: number, y: number, w: number, h: number, color: string) {
-    this.canvas.rect(x, y, w, h, color);
-  }
-
-  // Response Helpers
+  // ── Response Helpers ────────────────────────────────────
   json(data: any, status: number = 200): Response {
     return new Response(JSON.stringify(data), {
       status,
@@ -105,6 +100,7 @@ export class Doo {
     });
   }
 
+  // ── Logging ─────────────────────────────────────────────
   log(message: any) {
     const timestamp = new Date().toISOString();
     const formattedMessage =
@@ -112,6 +108,7 @@ export class Doo {
         ? JSON.stringify(message, null, 2)
         : String(message);
     this.logs.push(`[${timestamp}] ${formattedMessage}`);
+    this.trace.push("log");   // yellow
   }
 
   error(message: any) {
@@ -121,6 +118,7 @@ export class Doo {
         ? JSON.stringify(message, null, 2)
         : String(message);
     this.logs.push(`[${timestamp}] ERROR: ${formattedMessage}`);
+    this.trace.push("error"); // red
   }
 
   async run(method: string, path: string, request: Request): Promise<Response> {
@@ -134,14 +132,12 @@ export class Doo {
           params[key] = match[i + 1];
         });
 
-        // Parse query params
         const url = new URL(request.url);
         const query: Record<string, string> = {};
         url.searchParams.forEach((value, key) => {
           query[key] = value;
         });
 
-        // Parse body if it's JSON
         let body: any = null;
         if (request.headers.get("content-type")?.includes("application/json")) {
           try {
@@ -151,7 +147,6 @@ export class Doo {
           }
         }
 
-        // Create a safe, mutable request context instead of mutating the frozen standard Request object
         const dooReq: DooRequest = {
           params,
           query,
@@ -159,7 +154,6 @@ export class Doo {
           url: request.url,
           method: request.method,
           headers: request.headers,
-          // Add any other needed raw request properties here
         };
 
         try {
@@ -179,7 +173,7 @@ export class Doo {
   getResults() {
     return {
       logs: this.logs,
-      pixels: this.canvas.getPixels(),
+      pixels: this.trace,   // flat string[] of event colors, empty = no pixels
     };
   }
 }
