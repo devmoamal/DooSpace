@@ -28,7 +28,7 @@ export const StatsCard: React.FC<StatsCardProps> = ({
       <p className="text-[10px] font-medium text-text-subtle uppercase tracking-widest mb-3">
         {label}
       </p>
-      <div className="flex items-baseline gap-2 mb-2">
+      <div className="flex items-end gap-2 mb-2">
         <span className="text-[22px] font-semibold text-text tracking-tight tabular-nums">
           {value}
         </span>

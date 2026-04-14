@@ -30,6 +30,9 @@ export const QUERY_KEYS = {
     USAGE: ["doobox", "usage"] as const,
     DETAIL: (dooId: number) => ["doobox", "detail", dooId] as const,
   },
+  SECRETS: {
+    ALL: ["secrets"] as const,
+  },
   OVERVIEW: {
     STATS: ["overview", "stats"] as const,
     CHARTS: ["overview", "charts"] as const,

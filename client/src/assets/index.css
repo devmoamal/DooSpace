@@ -1,4 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 @import "tailwindcss";
+
 
 /* ============================================
    DESIGN TOKENS — light (default)
@@ -24,17 +26,17 @@
    DARK MODE — toggled by .dark on <html>
    ============================================ */
 .dark {
-  --color-bg:            #0f0f0f;
-  --color-surface:       #161616;
-  --color-surface-lighter: #1f1f1f;
-  --color-surface-overlay: #282828;
+  --color-bg:            #0a0a0a;
+  --color-surface:       #111111;
+  --color-surface-lighter: #1a1a1a;
+  --color-surface-overlay: #222222;
 
-  --color-border:        #242424;
-  --color-border-hover:  #333333;
+  --color-border:        #1e1e1e;
+  --color-border-hover:  #2e2e2e;
 
   --color-text:          #ededed;
   --color-text-muted:    #8a8a8a;
-  --color-text-subtle:   #4e4e4e;
+  --color-text-subtle:   #444444;
 }
 
 /* ============================================
@@ -60,6 +62,17 @@
     font-family: "Inter", system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: rgba(62, 207, 142, 0.2);
+  }
+
+  /* Subtle focus ring for keyboard nav */
+  :focus-visible {
+    outline: 1px solid var(--color-brand);
+    outline-offset: 1px;
   }
 }
 
@@ -79,10 +92,18 @@
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-  .custom-scrollbar::-webkit-scrollbar { width: 3px; height: 3px; }
+  .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
   .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
   .custom-scrollbar::-webkit-scrollbar-thumb {
     background: var(--color-border-hover);
     border-radius: 999px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-subtle);
+  }
+
+  /* Tabular figures util */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
   }
 }

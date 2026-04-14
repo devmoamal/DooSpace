@@ -9,6 +9,7 @@ import {
   Box,
   PanelLeftClose,
   PanelLeft,
+  KeyRound,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { UserDropdown } from "./UserDropdown";
@@ -23,6 +24,7 @@ const sidebarItems = [
   { icon: Terminal,   label: "Doos",     href: "/doo",       section: "WORKSPACE" },
   { icon: Activity,   label: "Requests", href: "/requests",  section: "WORKSPACE" },
   { icon: Database,   label: "DooBox",   href: "/doobox",    section: "WORKSPACE" },
+  { icon: KeyRound,   label: "Secrets",  href: "/secrets",   section: "WORKSPACE" },
   { icon: Settings,   label: "Settings", href: "/settings",  section: "PROJECT", disabled: true },
   { icon: FileText,   label: "Docs",     href: "https://docs.doospace.com", section: "PROJECT" },
 ];
@@ -65,8 +67,8 @@ export function Sidebar() {
       )}>
         {/* Logo + controls */}
         <div className={cn(
-          "flex items-center shrink-0 px-3 py-3 border-b border-border gap-2",
-          isSidebarCollapsed ? "justify-center flex-col" : "justify-between",
+          "h-11 flex items-center shrink-0 px-3 border-b border-border gap-2",
+          isSidebarCollapsed ? "justify-center" : "justify-between",
         )}>
           {!isSidebarCollapsed && (
             <Link to="/" className="flex items-center gap-2 shrink-0 min-w-0">
@@ -76,7 +78,7 @@ export function Sidebar() {
               </span>
             </Link>
           )}
-          <div className={cn("flex items-center gap-0.5", isSidebarCollapsed && "flex-col")}>
+          <div className="flex items-center gap-0.5">
             <ThemeToggle />
             <button
               onClick={toggleSidebar}
@@ -96,8 +98,8 @@ export function Sidebar() {
 
         {/* User */}
         <div className={cn(
-          "border-t border-border mt-auto",
-          isSidebarCollapsed ? "px-1.5 py-2" : "p-2",
+          "h-10 border-t border-border flex items-center mt-auto",
+          isSidebarCollapsed ? "px-1.5 justify-center" : "px-2",
         )}>
           {user ? (
             <UserDropdown

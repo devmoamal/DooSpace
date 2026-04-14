@@ -27,11 +27,11 @@ export function StudioSidebar({
   return (
     <div className="w-60 border-r border-border bg-bg flex flex-col shrink-0">
       {/* Search */}
-      <div className="p-3 border-b border-border">
-        <div className="relative">
+      <div className="h-11 border-b border-border flex items-center px-3 shrink-0">
+        <div className="relative w-full">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-text-subtle" size={13} />
           <input
-            className="w-full h-8 pl-8 pr-3 bg-surface border border-border rounded text-[12px] text-text placeholder:text-text-subtle outline-none focus:border-border-hover transition-colors"
+            className="w-full h-7 pl-8 pr-3 bg-surface border border-border rounded text-[12px] text-text placeholder:text-text-subtle outline-none focus:border-border-hover transition-colors"
             placeholder="Search"
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
@@ -71,7 +71,7 @@ export function StudioSidebar({
       </div>
 
       {/* Footer */}
-      <div className="px-4 py-2.5 border-t border-border flex items-center justify-between">
+      <div className="h-10 border-t border-border px-4 flex items-center justify-between shrink-0">
         <span className="text-[10px] text-text-subtle uppercase tracking-widest">Total</span>
         <span className="text-[11px] font-mono text-text-muted">{totalDisplay}</span>
       </div>

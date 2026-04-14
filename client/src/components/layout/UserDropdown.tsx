@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { LogOut, ChevronDown } from "lucide-react";
+import { LogOut, ChevronDown, LayoutGrid } from "lucide-react";
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown";
 import { cn } from "@/lib/cn";
 import { User } from "@/stores/auth.store";
@@ -11,6 +11,7 @@ interface UserDropdownProps {
   align?: "start" | "center" | "end";
   className?: string;
   hideLabels?: boolean;
+  showDashboard?: boolean;
 }
 
 export function UserDropdown({
@@ -20,6 +21,7 @@ export function UserDropdown({
   align = "end",
   className,
   hideLabels = false,
+  showDashboard = false,
 }: UserDropdownProps) {
   if (!user) return null;
 
@@ -36,9 +38,7 @@ export function UserDropdown({
       {!hideLabels && (
         <>
           <div className="flex-1 min-w-0">
-            <p className="text-[12px] font-medium text-text truncate leading-none">
-              {user.username}
-            </p>
+            <p className="text-[12px] font-medium text-text truncate leading-none">{user.username}</p>
           </div>
           <ChevronDown size={13} className="text-text-subtle shrink-0" />
         </>
@@ -54,7 +54,15 @@ export function UserDropdown({
       className={className}
       contentClassName="w-48 overflow-hidden"
     >
-      <div className="border-b border-border mx-2 my-1" />
+      {showDashboard && (
+        <Link to="/dashboard">
+          <DropdownItem>
+            <LayoutGrid size={13} />
+            <span>Dashboard</span>
+          </DropdownItem>
+        </Link>
+      )}
+      {showDashboard && <div className="border-b border-border mx-2 my-1" />}
       <DropdownItem onClick={onLogout} danger>
         <LogOut size={13} />
         <span>Sign out</span>
