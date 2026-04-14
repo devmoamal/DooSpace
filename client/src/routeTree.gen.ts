@@ -18,6 +18,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DooIndexRouteImport } from './routes/doo/index'
 import { Route as DooIdRouteImport } from './routes/doo/$id'
+import { Route as DooIdPlaygroundRouteImport } from './routes/doo/$id_.playground'
 
 const SecretsRoute = SecretsRouteImport.update({
   id: '/secrets',
@@ -64,6 +65,11 @@ const DooIdRoute = DooIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => DooRoute,
 } as any)
+const DooIdPlaygroundRoute = DooIdPlaygroundRouteImport.update({
+  id: '/$id_/playground',
+  path: '/$id/playground',
+  getParentRoute: () => DooRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/secrets': typeof SecretsRoute
   '/doo/$id': typeof DooIdRoute
   '/doo/': typeof DooIndexRoute
+  '/doo/$id/playground': typeof DooIdPlaygroundRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -85,6 +92,7 @@ export interface FileRoutesByTo {
   '/secrets': typeof SecretsRoute
   '/doo/$id': typeof DooIdRoute
   '/doo': typeof DooIndexRoute
+  '/doo/$id/playground': typeof DooIdPlaygroundRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -97,6 +105,7 @@ export interface FileRoutesById {
   '/secrets': typeof SecretsRoute
   '/doo/$id': typeof DooIdRoute
   '/doo/': typeof DooIndexRoute
+  '/doo/$id_/playground': typeof DooIdPlaygroundRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -110,6 +119,7 @@ export interface FileRouteTypes {
     | '/secrets'
     | '/doo/$id'
     | '/doo/'
+    | '/doo/$id/playground'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
     | '/secrets'
     | '/doo/$id'
     | '/doo'
+    | '/doo/$id/playground'
   id:
     | '__root__'
     | '/'
@@ -131,6 +142,7 @@ export interface FileRouteTypes {
     | '/secrets'
     | '/doo/$id'
     | '/doo/'
+    | '/doo/$id_/playground'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -208,17 +220,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DooIdRouteImport
       parentRoute: typeof DooRoute
     }
+    '/doo/$id_/playground': {
+      id: '/doo/$id_/playground'
+      path: '/$id/playground'
+      fullPath: '/doo/$id/playground'
+      preLoaderRoute: typeof DooIdPlaygroundRouteImport
+      parentRoute: typeof DooRoute
+    }
   }
 }
 
 interface DooRouteChildren {
   DooIdRoute: typeof DooIdRoute
   DooIndexRoute: typeof DooIndexRoute
+  DooIdPlaygroundRoute: typeof DooIdPlaygroundRoute
 }
 
 const DooRouteChildren: DooRouteChildren = {
   DooIdRoute: DooIdRoute,
   DooIndexRoute: DooIndexRoute,
+  DooIdPlaygroundRoute: DooIdPlaygroundRoute,
 }
 
 const DooRouteWithChildren = DooRoute._addFileChildren(DooRouteChildren)
