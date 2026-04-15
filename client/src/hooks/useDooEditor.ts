@@ -84,6 +84,7 @@ export const useDooEditor = ({ id, initialCode = "" }: UseDooEditorOptions) => {
     isFormatting,
     isSaving: updateMutation.isPending,
     handleFormat,
+    formatCode,
     handleSave,
     handleSync,
   };

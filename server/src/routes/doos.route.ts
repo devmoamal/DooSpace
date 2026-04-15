@@ -4,6 +4,7 @@ import {
   validateParams,
   validateQuery,
 } from "@/middlewares/validate.middleware";
+import { authMiddleware } from "@/middlewares/auth.middleware";
 
 import {
   DooSchema,
@@ -70,9 +71,10 @@ router.get("/:id{[0-9]+}", validateParams(IdParamSchema), async (c) => {
 });
 
 // Create Doo
-router.post("/", validateBody(DooSchema), async (c) => {
+router.post("/", authMiddleware, validateBody(DooSchema), async (c) => {
   const data = c.req.valid("json");
-  const newDoo = await dooService.createDoo(data);
+  const auth = c.get("auth");
+  const newDoo = await dooService.createDoo({ ...data, owner_id: auth.id });
   return Response.success(c, newDoo, "Doo created successfully", 201);
 });
 
@@ -90,11 +92,15 @@ router.put(
 );
 
 // Toggle Active Status
-router.patch("/:id{[0-9]+}/active", validateParams(IdParamSchema), async (c) => {
-  const { id } = c.req.valid("param");
-  const updatedDoo = await dooService.toggleActiveStatus(id);
-  return Response.success(c, updatedDoo, "Status updated successfully");
-});
+router.patch(
+  "/:id{[0-9]+}/active",
+  validateParams(IdParamSchema),
+  async (c) => {
+    const { id } = c.req.valid("param");
+    const updatedDoo = await dooService.toggleActiveStatus(id);
+    return Response.success(c, updatedDoo, "Status updated successfully");
+  },
+);
 
 // Delete Doo
 router.delete("/:id{[0-9]+}", validateParams(IdParamSchema), async (c) => {

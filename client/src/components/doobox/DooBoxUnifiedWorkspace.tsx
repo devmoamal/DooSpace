@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import {
   Loader2, Plus, Trash2, Database, Terminal,
-  ChevronLeft, ChevronRight, Play, AlertCircle, EyeOff, Clock,
+  ChevronLeft, ChevronRight, Play, AlertCircle, Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useDooDooBoxQuery, useDeleteDooBoxKeyMutation } from "@/hooks/queries/useDooBox";

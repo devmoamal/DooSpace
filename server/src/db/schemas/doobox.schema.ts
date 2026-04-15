@@ -3,7 +3,6 @@ import {
   text,
   timestamp,
   integer,
-  jsonb,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { doosTable } from "./doos.schema";
@@ -16,7 +15,7 @@ export const dooboxTable = pgTable(
       .references(() => doosTable.id, { onDelete: "cascade" })
       .notNull(),
     key: text("key").notNull(),
-    value: jsonb("value").notNull(),
+    value: text("value").notNull(),
     expire_at: timestamp("expire_at"),
     created_at: timestamp("created_at").defaultNow().notNull(),
     updated_at: timestamp("updated_at").defaultNow().notNull(),

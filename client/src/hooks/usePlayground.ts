@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { type Endpoint } from "@doospace/shared";
 import {
   parseTSFields,
@@ -52,7 +52,7 @@ export function usePlayground(id: number) {
       const fields = parseTSFields(selectedEndpoint.request_type);
       setParsedFields(fields);
 
-      if (fields) {
+      if (fields && fields.length > 0) {
         setBodyMode("form");
         const initialForm: Record<string, string> = {};
         fields.forEach((f) => (initialForm[f.name] = ""));
@@ -60,18 +60,27 @@ export function usePlayground(id: number) {
       } else {
         setBodyMode(selectedEndpoint.method === "GET" ? "raw" : "keyvalue");
       }
+    } else {
+      // Reset when custom request selected
+      setParsedFields(null);
     }
   }, [selectedEndpoint]);
 
-  // Extract path params live
-  const pathParams = extractPathParams(path);
+  // Extract path params — memoized to avoid array reference changing every render
+  const pathParams = useMemo(() => extractPathParams(path), [path]);
+
   useEffect(() => {
     setParams((prev) => {
       const next = { ...prev };
+      let changed = false;
       for (const p of pathParams) {
-        if (!next[p]) next[p] = "";
+        if (next[p] === undefined) {
+          next[p] = "";
+          changed = true;
+        }
       }
-      return next;
+      // Only update if something actually changed
+      return changed ? next : prev;
     });
   }, [pathParams]);
 
@@ -94,11 +103,14 @@ export function usePlayground(id: number) {
       });
 
       let reqBody: any = undefined;
+      let finalUrl = url;
+
       if (["POST", "PUT", "PATCH"].includes(method)) {
         if (bodyMode === "form") {
           const parsedForm: any = {};
           for (const [k, v] of Object.entries(formBody)) {
-            if (!Number.isNaN(Number(v))) parsedForm[k] = Number(v);
+            if (v === "") continue; // skip empty
+            if (!Number.isNaN(Number(v)) && v !== "") parsedForm[k] = Number(v);
             else if (v === "true") parsedForm[k] = true;
             else if (v === "false") parsedForm[k] = false;
             else parsedForm[k] = v;
@@ -113,9 +125,26 @@ export function usePlayground(id: number) {
         } else {
           reqBody = rawBody;
         }
+      } else if (["GET", "DELETE"].includes(method)) {
+        // For GET/DELETE, append payload to URL query string
+        const searchParams = new URLSearchParams();
+        if (bodyMode === "form") {
+          for (const [k, v] of Object.entries(formBody)) {
+            if (v !== "") searchParams.append(k, v);
+          }
+        } else if (bodyMode === "keyvalue") {
+          kvBody.forEach(({ k, v }) => {
+            if (k.trim()) searchParams.append(k.trim(), v);
+          });
+        }
+        
+        const qs = searchParams.toString();
+        if (qs) {
+          finalUrl += finalUrl.includes("?") ? `&${qs}` : `?${qs}`;
+        }
       }
 
-      const res = await fetch(url, {
+      const res = await fetch(finalUrl, {
         method,
         headers: reqHeaders,
         body: reqBody,

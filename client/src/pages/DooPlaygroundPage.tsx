@@ -16,34 +16,60 @@ export function DooPlaygroundPage({ id }: DooPlaygroundPageProps) {
   const playground = usePlayground(id);
 
   return (
-    <div className="h-full flex flex-col bg-bg border-l border-border">
-      {/* Header */}
-      <header className="h-12 border-b border-border flex items-center justify-between px-4 shrink-0 bg-surface">
+    <div className="h-full flex flex-col bg-bg overflow-hidden">
+      {/* Header — matches app style (h-11) */}
+      <header className="h-11 border-b border-border flex items-center justify-between px-5 shrink-0 bg-bg sticky top-0 z-10">
         <div className="flex items-center gap-3">
           <Link
             to="/doo/$id"
             params={{ id: String(id) }}
-            className="p-1.5 text-text-subtle hover:text-text hover:bg-border rounded transition-colors -ml-1.5"
+            className="h-6 w-6 flex items-center justify-center rounded border border-border text-text-subtle hover:text-text hover:bg-surface transition-colors -ml-1"
             title="Back to Editor"
           >
-            <ChevronLeft size={16} />
+            <ChevronLeft size={13} />
           </Link>
-          <div className="flex items-center justify-center w-6 h-6 rounded bg-brand/10 text-brand">
-            <Terminal size={12} className="ml-0.5" />
+
+          <div className="w-px h-4 bg-border" />
+
+          <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center w-5 h-5 rounded bg-brand/10 text-brand">
+              <Terminal size={11} />
+            </div>
+            <h1 className="text-[13px] font-semibold text-text">
+              Playground
+            </h1>
+            {doo?.name && (
+              <span className="text-[12px] text-text-muted font-normal">
+                · {doo.name}
+              </span>
+            )}
           </div>
-          <h2 className="text-[13px] font-semibold text-text">
-            Playground{" "}
-            <span className="text-text-subtle font-normal ml-2">Doo #{id}</span>
-          </h2>
         </div>
+
+        {/* Right side info */}
+        {!isLoading && doo && (
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] font-mono text-text-subtle tabular-nums">
+              {(doo.endpoints || []).length} endpoint
+              {(doo.endpoints || []).length !== 1 ? "s" : ""}
+            </span>
+            <span
+              className={`w-1.5 h-1.5 rounded-full ${doo.is_active ? "bg-brand" : "bg-border"}`}
+            />
+            <span className="text-[10px] font-mono text-text-muted uppercase tracking-widest">
+              {doo.is_active ? "active" : "inactive"}
+            </span>
+          </div>
+        )}
       </header>
 
       {isLoading ? (
         <div className="flex-1 flex items-center justify-center">
-          <Loader2 className="animate-spin text-text-subtle" />
+          <Loader2 className="animate-spin text-text-subtle" size={18} />
         </div>
       ) : (
         <div className="flex-1 flex min-h-0">
+          {/* Sidebar */}
           <EndpointSidebar
             endpoints={doo?.endpoints || []}
             selectedEndpoint={playground.selectedEndpoint}
@@ -52,7 +78,8 @@ export function DooPlaygroundPage({ id }: DooPlaygroundPageProps) {
             onPathChange={playground.setPath}
           />
 
-          <main className="flex-1 flex flex-col min-w-0 bg-bg">
+          {/* Main area */}
+          <main className="flex-1 flex flex-col min-w-0">
             <UrlBar
               id={id}
               method={playground.method}
@@ -63,6 +90,7 @@ export function DooPlaygroundPage({ id }: DooPlaygroundPageProps) {
               isSending={playground.isSending}
             />
 
+            {/* Request / Response split */}
             <div className="flex-1 flex min-h-0">
               <RequestPanel
                 activeTab={playground.activeTab}
@@ -81,9 +109,13 @@ export function DooPlaygroundPage({ id }: DooPlaygroundPageProps) {
                 onKvBodyChange={playground.setKvBody}
                 rawBody={playground.rawBody}
                 onRawBodyChange={playground.setRawBody}
+                selectedEndpoint={playground.selectedEndpoint}
               />
 
-              <ResponsePanel response={playground.response} />
+              <ResponsePanel
+                response={playground.response}
+                selectedEndpoint={playground.selectedEndpoint}
+              />
             </div>
           </main>
         </div>

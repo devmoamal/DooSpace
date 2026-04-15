@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Terminal, Zap, History, Clock } from "lucide-react";
+import { Terminal, Zap, History } from "lucide-react";
 import { DooPix } from "@/components/ui/DooPix";
 import { cn } from "@/lib/cn";
 
@@ -20,9 +20,7 @@ export function StatusPanel({ requests, className }: StatusPanelProps) {
 
   const selectedRequest = requests[selectedIdx] || {};
   const logs = selectedRequest.logs || [];
-  const pixels =
-    selectedRequest.doo_pix ||
-    Array.from({ length: 24 }, () => Array.from({ length: 24 }, () => "white"));
+  const pixels = selectedRequest.doo_pix || [];
 
   const tabs = [
     { id: "pix" as const, icon: Zap, label: "Display" },
@@ -57,7 +55,7 @@ export function StatusPanel({ requests, className }: StatusPanelProps) {
       <div className="flex-1 flex flex-col overflow-hidden">
         {activeTab === "pix" ? (
           <div className="space-y-4 flex flex-col items-center w-full overflow-y-auto no-scrollbar pb-4">
-            <DooPix pixels={pixels} size={200} className="border-border" />
+            <DooPix pixels={pixels} className="border-border" />
 
             <div className="grid grid-cols-2 gap-2 w-full">
               <div className="p-3 bg-surface rounded border border-border text-center">

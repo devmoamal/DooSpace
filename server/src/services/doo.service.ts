@@ -26,7 +26,7 @@ export class DooService {
     return doo;
   }
 
-  async createDoo(data: { name: string; description?: string; code: string }) {
+  async createDoo(data: { name: string; description?: string; code: string; owner_id: number }) {
     const endpoints = extractEndpoints(data.code);
     return await dooRepository.create({
       ...data,

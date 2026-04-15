@@ -19,11 +19,34 @@ function extractTypes(code: string): Map<string, string> {
     let i = start;
     let definition = "";
     
-    // Scan until we find a semicolon at the top level
+    // skip whitespace
+    while (i < code.length && /\s/.test(code[i])) {
+      i++;
+    }
+    
+    const isObject = code[i] === "{";
+    
+    // Scan until we find the end
     while (i < code.length) {
       if (code[i] === "{") braceCount++;
-      if (code[i] === "}") braceCount--;
-      if (code[i] === ";" && braceCount === 0) break;
+      if (code[i] === "}") {
+        braceCount--;
+        if (isObject && braceCount === 0) {
+           definition += "}";
+           break;
+        }
+      }
+      
+      if (!isObject && braceCount === 0) {
+         if (code[i] === ";") break;
+         if (code[i] === "\n") {
+            const rest = code.slice(i+1).trimStart();
+            if (/^(type|interface|export|function|const|let|var|class|doo\.)\b/.test(rest)) {
+               break;
+            }
+         }
+      }
+      
       definition += code[i];
       i++;
     }

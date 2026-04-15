@@ -19,7 +19,7 @@ export const requestsTable = pgTable("requests", {
   status: integer("status").notNull(),
   response: text("response"),
   logs: jsonb("logs").$type<string[]>().default([]).notNull(),
-  doo_pix: jsonb("doo_pix").$type<string[][]>().default([]).notNull(), // 24x24 grid
+  doo_pix: jsonb("doo_pix").$type<string[]>().default([]).notNull(), // array of event colors
   duration: integer("duration"), // ms
   created_at: timestamp("created_at").defaultNow().notNull(),
 });

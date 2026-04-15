@@ -10,7 +10,7 @@ export class DooBox {
 
   async get<T = any>(key: string): Promise<T | null> {
     const item = await dooboxRepository.get(this.dooId, key);
-    this.traceFn?.("db");   // amber — db read
+    this.traceFn?.("db"); // amber — db read
     return item ? (item.value as T) : null;
   }
 
@@ -18,8 +18,11 @@ export class DooBox {
     const expireAt = ttlSeconds
       ? new Date(Date.now() + ttlSeconds * 1000)
       : undefined;
-    await dooboxRepository.set(this.dooId, key, value, expireAt);
-    this.traceFn?.("db");   // amber — db write
+    
+    const textValue = typeof value === "string" ? value : JSON.stringify(value);
+
+    await dooboxRepository.set(this.dooId, key, textValue, expireAt);
+    this.traceFn?.("db"); // amber — db write
   }
 
   async delete(key: string): Promise<boolean> {

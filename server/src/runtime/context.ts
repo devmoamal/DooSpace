@@ -146,6 +146,19 @@ export class Doo {
             body = null;
           }
         }
+        
+        // Ergonomic fallback: for GET/DELETE without a body, map the query parameters into the body 
+        // so script authors can universally access payloads via req.body (defined by their type T).
+        if (!body && ["GET", "DELETE"].includes(request.method)) {
+          body = { ...query };
+          // Attempt to parse numbers/booleans for convenience since queries are strings
+          for (const key in body) {
+            const val = body[key];
+            if (!Number.isNaN(Number(val)) && val !== "") body[key] = Number(val);
+            else if (val === "true") body[key] = true;
+            else if (val === "false") body[key] = false;
+          }
+        }
 
         const dooReq: DooRequest = {
           params,

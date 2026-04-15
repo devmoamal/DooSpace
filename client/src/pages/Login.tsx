@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { authService } from "@/services/auth.service";
 import { Box, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/cn";
-import { useThemeStore } from "@/stores/theme.store";
+
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 export const LoginPage: React.FC = () => {
