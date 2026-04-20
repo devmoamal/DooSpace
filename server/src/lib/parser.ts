@@ -125,7 +125,7 @@ export function extractEndpoints(code: string): Endpoint[] {
   const typesMap = extractTypes(code);
 
   const regex =
-    /\.(get|post|put|delete|patch|all)(?:\s*<([^>]*?(?:<[^>]*?>[^>]*?)*)>)?\s*\(\s*['"](.*?)['"](?:(?:(?!\.(?:get|post|put|delete|patch|all)).)*?DooRequest(?:\s*<([^>]*?(?:<[^>]*?>[^>]*?)*)>))?/gi;
+    /doo\.(get|post|put|delete|patch|all)(?:\s*<([^>]*?(?:<[^>]*?>[^>]*?)*)>)?\s*\(\s*['"](.*?)['"](?:(?:(?!\.(?:get|post|put|delete|patch|all)).)*?DooRequest(?:\s*<([^>]*?(?:<[^>]*?>[^>]*?)*)>))?/gi;
 
   let match;
   while ((match = regex.exec(code)) !== null) {
