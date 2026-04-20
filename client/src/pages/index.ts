@@ -5,3 +5,4 @@ export * from "./Login";
 export * from "./RequestsPage";
 export * from "./DooBoxPage";
 export * from "./DooPlaygroundPage";
+export * from "./LoopsPage";
