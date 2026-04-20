@@ -29,7 +29,7 @@ export const RequestsChart: React.FC<RequestsChartProps> = ({
   };
 
   return (
-    <div className="border border-border rounded-md p-5 bg-bg">
+    <div className="border border-border rounded-none p-5 bg-bg">
       <div className="flex items-center justify-between mb-5">
         <p className="text-[12px] font-medium text-text">Traffic</p>
         <span className="text-[11px] font-mono text-brand tabular-nums">

@@ -17,21 +17,17 @@ interface DooEditorProps {
 export const DooEditorPage: React.FC<DooEditorProps> = ({ id }) => {
   const { data: doo, isLoading: isDooLoading } = useDooQuery(id);
 
-  const {
-    code,
-    setCode,
-    isFormatting,
-    isSaving,
-    handleFormat,
-    formatCode,
-    handleSave,
-    handleSync,
-  } = useDooEditor({
-    id,
-    initialCode: doo?.code || "",
-  });
+  const { code, setCode, isSaving, formatCode, handleSave, handleSync } =
+    useDooEditor({
+      id,
+      initialCode: doo?.code || "",
+    });
 
-  const { width: sidebarWidth, isResizing, startResizing } = useResizableSidebar({
+  const {
+    width: sidebarWidth,
+    isResizing,
+    startResizing,
+  } = useResizableSidebar({
     initialWidth: 320,
     minWidth: 200,
     maxWidth: 600,
@@ -55,7 +51,6 @@ export const DooEditorPage: React.FC<DooEditorProps> = ({ id }) => {
         isResizing && "cursor-col-resize select-none",
       )}
     >
-
       <EditorHeader
         id={id}
         name={doo?.name || ""}
@@ -65,14 +60,10 @@ export const DooEditorPage: React.FC<DooEditorProps> = ({ id }) => {
         isSaving={isSaving}
       />
 
-      <BrowserURLBar
-        id={id}
-        onFormat={handleFormat}
-        isFormatting={isFormatting}
-      />
+      <BrowserURLBar id={id} />
 
       <main className="flex-1 flex gap-0 overflow-hidden min-h-0">
-        <div className="flex-1 flex flex-col overflow-hidden p-4">
+        <div className="flex-1 flex flex-col overflow-hidden">
           <LogicEditor
             id={id}
             code={code}
@@ -93,10 +84,7 @@ export const DooEditorPage: React.FC<DooEditorProps> = ({ id }) => {
           className="hidden lg:flex bg-bg flex-col shrink-0 overflow-hidden"
           style={{ width: sidebarWidth }}
         >
-          <EndpointsPanel
-            endpoints={doo?.endpoints || []}
-            className="flex-1"
-          />
+          <EndpointsPanel endpoints={doo?.endpoints || []} className="flex-1" />
         </div>
       </main>
     </div>

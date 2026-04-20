@@ -10,7 +10,7 @@ export function DooCard({ doo }: DooCardProps) {
   return (
     <div
       className={cn(
-        "group block border border-border bg-bg hover:bg-surface rounded-md p-4 transition-colors relative",
+        "group block border border-border bg-bg hover:bg-surface rounded-none p-4 transition-all relative overflow-hidden",
         !doo.is_active && "opacity-40",
       )}
     >

@@ -13,7 +13,7 @@ export function DooListItem({ doo, view = "grid" }: DooListItemProps) {
   return (
     <div
       className={cn(
-        "group flex relative overflow-hidden border border-border rounded-md bg-bg transition-colors hover:bg-surface",
+        "group flex relative border border-border rounded-none bg-bg transition-all hover:bg-surface",
         view === "grid" ? "flex-col p-4" : "flex-row items-center p-3 gap-4",
         !doo.is_active && "opacity-40",
       )}

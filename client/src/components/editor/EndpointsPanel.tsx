@@ -31,7 +31,7 @@ export function EndpointsPanel({ endpoints, className }: EndpointsPanelProps) {
       {/* Header */}
       <div className="h-11 px-4 flex items-center gap-2 border-b border-border shrink-0">
         <Hash size={12} className="text-text-subtle" />
-        <span className="text-[10px] font-semibold text-text-muted uppercase tracking-widest">
+        <span className="text-[10px] font-semibold text-text-muted">
           Endpoints
         </span>
       </div>
@@ -58,7 +58,7 @@ export function EndpointsPanel({ endpoints, className }: EndpointsPanelProps) {
                       )}
                     />
                     <span className={cn(
-                      "text-[9px] font-bold uppercase shrink-0 tracking-wide",
+                      "text-[9px] font-bold shrink-0 tracking-wide",
                       methodColor
                     )}>
                       {ep.method}
@@ -84,7 +84,7 @@ export function EndpointsPanel({ endpoints, className }: EndpointsPanelProps) {
         ) : (
           <div className="flex flex-col items-center justify-center py-16 text-text-subtle">
             <Hash size={20} className="mb-2 opacity-30" />
-            <span className="text-[10px] font-medium uppercase tracking-widest opacity-40">
+            <span className="text-[10px] font-medium opacity-40">
               No routes
             </span>
           </div>
@@ -99,7 +99,7 @@ function TypeBlock({ label, typeStr, isResponse }: { label: string; typeStr?: st
 
   return (
     <div className="space-y-1.5">
-      <span className="text-[9px] font-semibold text-text-subtle uppercase tracking-wider">{label}</span>
+      <span className="text-[9px] font-semibold text-text-subtle">{label}</span>
       <div className={cn(
         "p-3 rounded border font-mono text-[10px] leading-relaxed overflow-x-auto",
         isResponse

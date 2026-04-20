@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { useDooForm } from "@/hooks/useDooForm";
 import { type Doo } from "@doospace/shared";
 import { cn } from "@/lib/cn";
+import { Loader2, Settings2 } from "lucide-react";
 
 interface EditDooModalProps {
   isOpen: boolean;
@@ -27,50 +28,60 @@ export function EditDooModal({ isOpen, onClose, doo }: EditDooModalProps) {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Edit Doo"
-      subtitle="Update name and description."
+      title="Logic Unit Configuration"
       maxWidth="lg"
     >
-      <form onSubmit={handleSubmit} className="flex flex-col">
+      <form onSubmit={handleSubmit} className="flex flex-col space-y-6">
         {error && (
-          <p className="mb-4 px-3 py-2 border border-red-500/20 rounded text-red-500 text-[11px] font-mono bg-red-500/5">
+          <div className="px-4 py-3 border border-red-500/20 rounded-none text-red-500 text-[11px] font-mono bg-red-500/5 animate-in fade-in slide-in-from-top-1">
+            <span className="font-bold mr-2">ERR_MANIFEST:</span>
             {error}
-          </p>
+          </div>
         )}
 
-        <div className="space-y-1">
-          <Input
-            label="Name"
-            placeholder="Name your Doo"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            helperText="Identifier for this logic unit"
-            horizontal
-            autoFocus
-            required
-          />
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold text-text-muted">Unit Identification</label>
+            <Input
+              placeholder="e.g. data_aggregator_v1"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="h-10 font-mono"
+              autoFocus
+              required
+            />
+            <p className="text-[10px] font-bold text-text-subtle opacity-50">Unique identifier used for routing and orchestration.</p>
+          </div>
 
-          <Textarea
-            label="Description"
-            placeholder="What does this Doo do?"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            helperText="Optional context"
-            horizontal
-          />
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold text-text-muted">Operational Context</label>
+            <Textarea
+              placeholder="Describe the primary responsibility of this Doo..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="min-h-[100px] py-3 shadow-inner"
+            />
+            <p className="text-[10px] font-bold text-text-subtle opacity-50">Optional documentation for team collaboration.</p>
+          </div>
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-4 border-t border-border mt-4">
-          <Button type="button" variant="ghost" size="sm" onClick={onClose}>
-            Cancel
+        <div className="flex items-center justify-end gap-3 pt-6 border-t border-border/30 mt-2">
+          <Button type="button" variant="ghost" size="sm" onClick={onClose} className="rounded-none font-bold text-[10px]">
+            Abort
           </Button>
           <Button
             type="submit"
+            variant="primary"
             size="sm"
-            className={cn(isPending && "opacity-50 cursor-not-allowed")}
             disabled={isPending}
+            className="gap-2 rounded-none font-black text-[10px] min-w-[140px]"
           >
-            {isPending ? "Saving…" : "Save"}
+            {isPending ? (
+               <Loader2 size={12} className="animate-spin" />
+            ) : (
+               <Settings2 size={13} />
+            )}
+            {isPending ? "COMMITTING..." : "SAVE CONFIG"}
           </Button>
         </div>
       </form>

@@ -4,13 +4,17 @@ import { type Doo } from "@doospace/shared";
 import { PAGINATION } from "@/constants";
 import {
   Plus, Loader2, ChevronLeft, ChevronRight,
-  Search, X, LayoutGrid, List,
+  Search, LayoutGrid, List,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { DooListItem } from "@/components/dashboard/DooListItem";
 import { CreateDooModal } from "@/components/dashboard/CreateDooModal";
 import { cn } from "@/lib/cn";
 import { useDebounce } from "@/hooks/useDebounce";
+import { Badge } from "@/components/ui/Badge";
+import { Input } from "@/components/ui/Input";
+import { IconButton } from "@/components/ui/IconButton";
+import { Terminal } from "lucide-react";
 
 export function DoosPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -38,52 +42,48 @@ export function DoosPage() {
     <>
       <div className="flex-1 flex flex-col h-full bg-bg overflow-hidden">
         {/* Header */}
-        <header className="h-11 border-b border-border flex items-center justify-between px-5 bg-bg sticky top-0 z-10 shrink-0">
+        <header className="h-11 border-b border-border flex items-center justify-between px-5 bg-bg/80 backdrop-blur-md sticky top-0 z-30 shrink-0">
           <div className="flex items-center gap-3">
-            <h1 className="text-[13px] font-semibold text-text">Doos</h1>
+            <h1 className="text-[13px] font-bold text-text">Logic Units</h1>
             {meta?.total != null && (
-              <span className="text-[11px] font-mono text-text-subtle tabular-nums">{meta.total}</span>
+              <Badge variant="neutral" size="xs" className="font-mono tabular-nums opacity-60">{meta.total}</Badge>
             )}
           </div>
-          <Button onClick={() => setIsModalOpen(true)} size="sm" className="gap-1.5">
-            <Plus size={13} />
+          <Button 
+            onClick={() => setIsModalOpen(true)} 
+            variant="primary" 
+            size="sm" 
+            className="gap-2 h-7.5 rounded-none"
+          >
+            <Plus size={14} />
             New Doo
           </Button>
         </header>
 
-        <main className="flex-1 px-5 py-4 overflow-y-auto custom-scrollbar flex flex-col min-h-0">
+        <main className="flex-1 px-5 py-5 overflow-y-auto custom-scrollbar flex flex-col min-h-0">
           {/* Toolbar */}
-          <div className="flex items-center gap-3 mb-4 flex-wrap">
+          <div className="flex items-center gap-3 mb-6 flex-wrap">
             {/* Search */}
-            <div className="relative flex items-center max-w-xs flex-1">
-              <Search className="absolute left-2.5 text-text-subtle" size={13} />
-              <input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-8 w-full bg-surface border border-border rounded pl-8 pr-7 text-[12px] text-text outline-none focus:border-border-hover transition-colors placeholder:text-text-subtle"
-                placeholder="Search…"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-2 text-text-subtle hover:text-text-muted transition-colors cursor-pointer"
-                >
-                  <X size={12} />
-                </button>
-              )}
-            </div>
+            <Input
+              value={searchQuery}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+              placeholder="Search Doos..."
+              className="max-w-xs h-8"
+              leftIcon={<Search size={13} />}
+              onClear={searchQuery ? () => setSearchQuery("") : undefined}
+            />
 
             {/* Status filter */}
-            <div className="flex items-center gap-0.5 bg-surface border border-border rounded p-0.5">
+            <div className="flex items-center bg-surface border border-border rounded-none p-0.5">
               {(["all", "active", "inactive"] as const).map((id) => (
                 <button
                   key={id}
                   onClick={() => setStatusFilter(id)}
                   className={cn(
-                    "px-2.5 py-1 rounded text-[11px] font-medium transition-colors cursor-pointer capitalize",
+                    "px-3 py-1 rounded-none text-[10px] font-bold transition-all cursor-pointer",
                     statusFilter === id
-                      ? "bg-bg text-text"
-                      : "text-text-muted hover:text-text"
+                      ? "bg-bg text-text shadow-sm"
+                      : "text-text-muted hover:text-text-subtle"
                   )}
                 >
                   {id}
@@ -91,26 +91,25 @@ export function DoosPage() {
               ))}
             </div>
 
-            <div className="ml-auto flex items-center gap-2">
+            <div className="ml-auto flex items-center gap-4">
               {/* Sort */}
               <button
                 onClick={() => setSortBy((s) => (s === "asc" ? "desc" : "asc"))}
-                className="text-[11px] font-mono text-text-subtle hover:text-text-muted transition-colors cursor-pointer px-2 py-1 rounded hover:bg-surface"
-                title="Toggle sort"
+                className="text-[10px] font-bold text-text-muted hover:text-text-subtle transition-all cursor-pointer flex items-center gap-1.5"
               >
-                {sortBy === "desc" ? "↓ newest" : "↑ oldest"}
+                {sortBy === "desc" ? "Newest First" : "Oldest First"}
               </button>
 
               {/* View mode */}
-              <div className="flex items-center border border-border rounded overflow-hidden bg-surface">
+              <div className="flex items-center border border-border rounded-none overflow-hidden bg-surface p-0.5">
                 {(["grid", "list"] as const).map((mode) => (
                   <button
                     key={mode}
                     onClick={() => setViewMode(mode)}
                     className={cn(
-                      "p-1.5 transition-colors cursor-pointer",
+                      "p-1.5 transition-all cursor-pointer rounded-none",
                       viewMode === mode
-                        ? "bg-bg text-text"
+                        ? "bg-bg text-brand shadow-sm"
                         : "text-text-subtle hover:text-text-muted"
                     )}
                   >
@@ -125,12 +124,13 @@ export function DoosPage() {
           <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar">
             {isLoading ? (
               <div className="h-full flex items-center justify-center py-20">
-                <Loader2 className="animate-spin text-text-subtle" size={18} />
+                <Loader2 className="animate-spin text-brand" size={20} />
               </div>
             ) : doos.length > 0 ? (
               <div className={cn(
+                "animate-in fade-in slide-in-from-bottom-2 duration-300",
                 viewMode === "grid"
-                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
+                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
                   : "flex flex-col gap-2"
               )}>
                 {doos.map((doo: Doo) => (
@@ -138,16 +138,19 @@ export function DoosPage() {
                 ))}
               </div>
             ) : (
-              <div className="h-full flex flex-col items-center justify-center py-20">
-                <p className="text-[12px] text-text-subtle mb-3">
-                  {searchQuery || statusFilter !== "all" ? "No matching Doos" : "No Doos yet"}
+              <div className="h-full flex flex-col items-center justify-center py-20 opacity-60">
+                <div className="w-12 h-12 rounded-none bg-surface border border-border flex items-center justify-center mb-5">
+                   <Terminal size={20} className="text-text-muted" />
+                </div>
+                <p className="text-[13px] font-medium text-text-muted mb-1">
+                  {searchQuery || statusFilter !== "all" ? "No matches found" : "No logic units yet"}
                 </p>
                 {(searchQuery || statusFilter !== "all") && (
                   <button
                     onClick={() => { setSearchQuery(""); setStatusFilter("all"); }}
-                    className="text-[11px] font-mono text-text-subtle hover:text-text-muted underline cursor-pointer"
+                    className="text-[11px] font-bold text-brand hover:underline cursor-pointer mt-2"
                   >
-                    Clear filters
+                    Clear Search
                   </button>
                 )}
               </div>
@@ -156,28 +159,32 @@ export function DoosPage() {
 
           {/* Pagination */}
           {meta && meta.lastPage > 1 && (
-            <div className="border-t border-border pt-3 mt-3 flex items-center justify-between shrink-0">
-              <span className="text-[11px] font-mono text-text-subtle tabular-nums">
-                {doos.length} / {meta.total}
-              </span>
-              <div className="flex items-center gap-1">
-                <button
+            <div className="border-t border-border pt-4 mt-6 flex items-center justify-between shrink-0">
+               <Badge variant="neutral" size="sm" className="font-mono opacity-60 tabular-nums">
+                {doos.length} of {meta.total} units
+              </Badge>
+              <div className="flex items-center gap-2">
+                <IconButton
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="h-7 w-7 flex items-center justify-center rounded border border-border text-text-subtle hover:text-text-muted hover:bg-surface disabled:opacity-30 transition-colors cursor-pointer"
+                  variant="subtle"
+                  size="sm"
                 >
-                  <ChevronLeft size={12} />
-                </button>
-                <span className="text-[11px] font-mono text-text-muted px-2 tabular-nums">
-                  {page} / {meta.lastPage}
-                </span>
-                <button
+                  <ChevronLeft size={14} />
+                </IconButton>
+                
+                <div className="px-3 py-1 bg-surface border border-border text-[11px] font-bold font-mono text-text-muted">
+                   {page} / {meta.lastPage}
+                </div>
+
+                <IconButton
                   onClick={() => setPage((p) => Math.min(meta.lastPage, p + 1))}
                   disabled={page === meta.lastPage}
-                  className="h-7 w-7 flex items-center justify-center rounded border border-border text-text-subtle hover:text-text-muted hover:bg-surface disabled:opacity-30 transition-colors cursor-pointer"
+                  variant="subtle"
+                  size="sm"
                 >
-                  <ChevronRight size={12} />
-                </button>
+                  <ChevronRight size={14} />
+                </IconButton>
               </div>
             </div>
           )}

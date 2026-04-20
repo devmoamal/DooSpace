@@ -37,5 +37,10 @@ export const QUERY_KEYS = {
     STATS: ["overview", "stats"] as const,
     CHARTS: ["overview", "charts"] as const,
   },
+  LOOPS: {
+    ALL: ["loops"] as const,
+    LIST: (params: any) => ["loops", "list", params] as const,
+    DETAIL: (id: string) => ["loops", "detail", id] as const,
+  },
 };
 

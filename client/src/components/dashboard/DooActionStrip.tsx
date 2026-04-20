@@ -9,6 +9,7 @@ import { useState } from "react";
 import { EditDooModal } from "./EditDooModal";
 import { Link } from "@tanstack/react-router";
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown";
+import { IconButton } from "@/components/ui/IconButton";
 
 interface DooActionStripProps {
   doo: any;
@@ -47,63 +48,58 @@ export function DooActionStrip({ doo, className }: DooActionStripProps) {
     }
   };
 
-  const iconBtn =
-    "p-1.5 rounded transition-colors cursor-pointer relative z-30";
-
   return (
     <>
-      <div className={cn("flex items-center gap-0.5", className)}>
+      <div className={cn("flex items-center gap-1", className)}>
         <Link
           to="/doo/$id/playground"
           params={{ id: String(doo.id) }}
           onClick={(e) => e.stopPropagation()}
-          className={cn(
-            iconBtn,
-            "text-text-subtle hover:text-brand hover:bg-surface border border-transparent",
-            "hover:border-border",
-          )}
-          title="Playground"
         >
-          <Terminal size={14} />
+          <IconButton
+            variant="ghost"
+            size="sm"
+            title="Open Playground"
+            className="text-text-subtle hover:text-brand"
+          >
+            <Terminal size={14} />
+          </IconButton>
         </Link>
 
-        <button
+        <IconButton
           onClick={handleToggle}
           disabled={toggleMutation.isPending}
-          className={cn(
-            iconBtn,
-            isActive
-              ? "text-brand hover:bg-brand-muted"
-              : "text-text-subtle hover:bg-surface hover:text-text-muted",
-          )}
+          variant="ghost"
+          size="sm"
           title={isActive ? "Pause" : "Activate"}
+          className={cn("rounded-none", isActive ? "text-brand" : "text-text-subtle")}
         >
           {toggleMutation.isPending ? (
             <Loader2 size={13} className="animate-spin" />
           ) : (
             <Power size={13} />
           )}
-        </button>
+        </IconButton>
 
         <Dropdown
           trigger={
-            <button
-              className={cn(
-                iconBtn,
-                "text-text-subtle hover:bg-surface hover:text-text-muted",
-              )}
+            <IconButton
+              variant="ghost"
+              size="sm"
+              title="More Options"
+              className="text-text-subtle"
             >
-              <MoreHorizontal size={13} />
-            </button>
+              <MoreHorizontal size={14} />
+            </IconButton>
           }
         >
           <DropdownItem onClick={() => setIsEditModalOpen(true)}>
-            Edit
+            Edit Details
           </DropdownItem>
-          <DropdownItem>Duplicate</DropdownItem>
-          <DropdownItem>View Logs</DropdownItem>
+          <DropdownItem>Clone Unit</DropdownItem>
+          <DropdownItem>Execution Logs</DropdownItem>
           <DropdownItem onClick={handleDelete} danger>
-            Delete
+            Delete Permanently
           </DropdownItem>
         </Dropdown>
       </div>

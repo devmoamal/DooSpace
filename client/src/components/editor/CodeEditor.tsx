@@ -10,6 +10,8 @@ interface CodeEditorProps {
   className?: string;
   height?: string;
   onFormat?: (code: string) => Promise<string>;
+  language?: string;
+  readOnly?: boolean;
 }
 
 export const CodeEditor: React.FC<CodeEditorProps> = ({
@@ -18,6 +20,8 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   className,
   height = "600px",
   onFormat,
+  language = "typescript",
+  readOnly = false,
 }) => {
   const editorRef = useRef<any>(null);
   const monacoRef = useRef<any>(null);
@@ -29,42 +33,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     }
   }, [theme]);
 
-  const handleEditorDidMount: OnMount = (editor, monaco) => {
-    editorRef.current = editor;
-    monacoRef.current = monaco;
-
-    // ── TypeScript config ─────────────────────────────────────────────────────
-    monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-      target: monaco.languages.typescript.ScriptTarget.ESNext,
-      allowNonTsExtensions: true,
-      moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-      module: monaco.languages.typescript.ModuleKind.ESNext,
-      noEmit: true,
-      allowJs: true,
-      lib: ["esnext", "dom"],
-    });
-
-    monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
-      noSemanticValidation: false,
-      noSyntaxValidation: false,
-      noSuggestionDiagnostics: false,
-    });
-
-    monaco.languages.typescript.typescriptDefaults.setInlayHintsOptions({
-      includeInlayParameterNameHints: "all",
-      includeInlayParameterNameHintsWhenArgumentMatchesName: true,
-      includeInlayFunctionParameterTypeHints: true,
-      includeInlayVariableTypeHints: true,
-      includeInlayPropertyDeclarationTypeHints: true,
-      includeInlayFunctionLikeReturnTypeHints: true,
-      includeInlayEnumMemberValueHints: true,
-    });
-
-    monaco.languages.typescript.typescriptDefaults.addExtraLib(
-      DOO_TYPES,
-      "ts:filename/doospace.d.ts",
-    );
-
+  const handleEditorWillMount = (monaco: any) => {
     // ── Dark theme ────────────────────────────────────────────────────────────
     monaco.editor.defineTheme("doo-dark", {
       base: "vs-dark",
@@ -76,6 +45,12 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         { token: "number",    foreground: "b388ff" },
         { token: "type",      foreground: "80cbc4" },
         { token: "delimiter", foreground: "4e4e4e" },
+        // JSON specific
+        { token: "string.key.json",   foreground: "ededed" }, // white for keys
+        { token: "string.value.json", foreground: "3ecf8e" }, // primary color for strings
+        { token: "number.json",       foreground: "b388ff" }, // purple for numbers
+        { token: "keyword.json",      foreground: "e9c46a" }, // yellow for booleans
+        { token: "constant.language.json", foreground: "e9c46a" },
       ],
       colors: {
         "editor.background":                   "#0f0f0f",
@@ -114,6 +89,12 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         { token: "number",    foreground: "7c4dff" },
         { token: "type",      foreground: "00897b" },
         { token: "delimiter", foreground: "adadad" },
+        // JSON specific
+        { token: "string.key.json",   foreground: "111111" },
+        { token: "string.value.json", foreground: "2ea86f" }, // primary color for strings
+        { token: "number.json",       foreground: "7c4dff" },
+        { token: "keyword.json",      foreground: "c17d10" }, // orange for booleans
+        { token: "constant.language.json", foreground: "c17d10" },
       ],
       colors: {
         "editor.background":                   "#ffffff",
@@ -140,8 +121,43 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         "scrollbarSlider.activeBackground":    "#00000018",
       },
     });
+  };
 
-    monaco.editor.setTheme(theme === "dark" ? "doo-dark" : "doo-light");
+  const handleEditorDidMount: OnMount = (editor, monaco) => {
+    editorRef.current = editor;
+    monacoRef.current = monaco;
+
+    // ── TypeScript config ─────────────────────────────────────────────────────
+    monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+      target: monaco.languages.typescript.ScriptTarget.ESNext,
+      allowNonTsExtensions: true,
+      moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+      module: monaco.languages.typescript.ModuleKind.ESNext,
+      noEmit: true,
+      allowJs: true,
+      lib: ["esnext", "dom"],
+    });
+
+    monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+      noSemanticValidation: false,
+      noSyntaxValidation: false,
+      noSuggestionDiagnostics: false,
+    });
+
+    monaco.languages.typescript.typescriptDefaults.setInlayHintsOptions({
+      includeInlayParameterNameHints: "all",
+      includeInlayParameterNameHintsWhenArgumentMatchesName: true,
+      includeInlayFunctionParameterTypeHints: true,
+      includeInlayVariableTypeHints: true,
+      includeInlayPropertyDeclarationTypeHints: true,
+      includeInlayFunctionLikeReturnTypeHints: true,
+      includeInlayEnumMemberValueHints: true,
+    });
+
+    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+      DOO_TYPES,
+      "ts:filename/doospace.d.ts",
+    );
 
     // ── Helpers ───────────────────────────────────────────────────────────────
     const COLORS = ["white", "brown", "yellow", "red", "green", "blue", "purple", "brand"];
@@ -446,13 +462,16 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   return (
     <div className={cn("overflow-hidden", className)}>
       <Editor
+        theme={theme === "dark" ? "doo-dark" : "doo-light"}
+        beforeMount={handleEditorWillMount}
         height={height}
-        defaultLanguage="typescript"
-        path="doospace-script.ts"
+        defaultLanguage={language}
+        path={language === "typescript" ? "doospace-script.ts" : undefined}
         value={value}
         onChange={(val) => onChange(val || "")}
         onMount={handleEditorDidMount}
         options={{
+          readOnly,
           minimap: { enabled: false },
           fontSize: 13,
           fontFamily: "JetBrains Mono, Menlo, Monaco, Consolas, monospace",

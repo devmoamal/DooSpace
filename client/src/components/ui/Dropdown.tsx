@@ -69,7 +69,7 @@ export function Dropdown({
 
       {isOpen && (
         <div className={cn(
-          "absolute z-200 bg-bg border border-border rounded-md min-w-[200px] overflow-hidden p-1",
+          "absolute z-200 bg-bg border border-border rounded-none min-w-[200px] overflow-hidden p-1 shadow-2xl animate-in fade-in zoom-in-95 duration-150",
           getPositionClasses(),
           contentClassName,
         )}>
@@ -108,11 +108,11 @@ export function DropdownItem({
     <div
       onClick={onClick}
       className={cn(
-        "px-3 py-1.5 text-[12px] cursor-pointer transition-colors flex items-center gap-2.5 rounded",
+        "px-3 py-1.5 text-[12px] cursor-pointer transition-colors flex items-center gap-2.5 rounded-none",
         danger
           ? "text-red-500 hover:bg-red-500/10"
           : active
-            ? "text-brand bg-brand-muted"
+            ? "text-brand bg-brand/5 border-l border-brand"
             : "text-text-muted hover:bg-surface hover:text-text",
         className,
       )}

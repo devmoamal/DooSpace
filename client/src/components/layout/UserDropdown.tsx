@@ -32,7 +32,7 @@ export function UserDropdown({
         hideLabels && "justify-center",
       )}
     >
-      <div className="w-6 h-6 rounded bg-surface-lighter border border-border flex items-center justify-center text-text-muted text-[10px] font-bold uppercase shrink-0">
+      <div className="w-6 h-6 rounded bg-surface-lighter border border-border flex items-center justify-center text-text-muted text-[10px] font-bold shrink-0">
         {user.username.charAt(0)}
       </div>
       {!hideLabels && (

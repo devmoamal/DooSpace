@@ -2,6 +2,7 @@ import { Toaster } from "sonner";
 import { Sidebar } from "./Sidebar";
 import { useThemeStore } from "@/stores/theme.store";
 import { useEffect } from "react";
+import { AIChatWidget } from "../ai/AIChatWidget";
 
 export function AppLayout({
   children,
@@ -39,6 +40,7 @@ export function AppLayout({
       <main className="flex-1 flex flex-col min-w-0 overflow-y-auto relative bg-bg">
         {children}
       </main>
+      <AIChatWidget />
     </div>
   );
 }

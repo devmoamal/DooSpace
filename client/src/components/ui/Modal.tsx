@@ -55,13 +55,13 @@ export const Modal: React.FC<ModalProps> = ({
       />
       {/* Panel */}
       <div className={cn(
-        "relative w-full bg-bg border border-border rounded-lg overflow-hidden",
+        "relative w-full bg-bg border border-border rounded-none overflow-hidden",
         maxWidthClasses[maxWidth],
         className
       )}>
         <button
           onClick={onClose}
-          className="absolute top-3.5 right-3.5 p-1 text-text-subtle hover:text-text-muted transition-colors z-10 rounded hover:bg-surface"
+          className="absolute top-3.5 right-3.5 p-1 text-text-subtle hover:text-text-muted transition-colors z-10 rounded-none hover:bg-surface"
         >
           <X size={15} />
         </button>

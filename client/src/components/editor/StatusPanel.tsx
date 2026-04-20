@@ -37,7 +37,7 @@ export function StatusPanel({ requests, className }: StatusPanelProps) {
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={cn(
-              "flex-1 py-1.5 text-[10px] font-medium uppercase tracking-widest rounded transition-colors cursor-pointer",
+              "flex-1 py-1.5 text-[10px] font-medium rounded transition-colors cursor-pointer",
               activeTab === tab.id
                 ? "bg-bg text-text"
                 : "text-text-subtle hover:text-text-muted"
@@ -67,7 +67,7 @@ export function StatusPanel({ requests, className }: StatusPanelProps) {
                 >
                   {selectedRequest.status || "—"}
                 </div>
-                <div className="text-[9px] text-text-subtle uppercase tracking-widest mt-0.5">
+                <div className="text-[9px] text-text-subtle mt-0.5">
                   Status
                 </div>
               </div>
@@ -75,7 +75,7 @@ export function StatusPanel({ requests, className }: StatusPanelProps) {
                 <div className="text-lg font-mono font-semibold text-text tabular-nums">
                   {selectedRequest.duration ? `${selectedRequest.duration}ms` : "—"}
                 </div>
-                <div className="text-[9px] text-text-subtle uppercase tracking-widest mt-0.5">
+                <div className="text-[9px] text-text-subtle mt-0.5">
                   Latency
                 </div>
               </div>
@@ -130,7 +130,7 @@ export function StatusPanel({ requests, className }: StatusPanelProps) {
                   <div className="flex items-center justify-between mb-0.5">
                     <span
                       className={cn(
-                        "text-[10px] font-mono font-semibold uppercase",
+                        "text-[10px] font-mono font-semibold",
                         req.status < 400 ? "text-brand" : "text-red-500"
                       )}
                     >

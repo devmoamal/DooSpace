@@ -1,42 +1,53 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
 @import "tailwindcss";
-
 
 /* ============================================
    DESIGN TOKENS — light (default)
    ============================================ */
 @theme {
-  --color-brand:         #3ecf8e;
-  --color-brand-muted:   rgba(62, 207, 142, 0.12);
+  --color-brand: #3ecf8e;
+  --color-brand-muted: rgba(62, 207, 142, 0.12);
 
-  --color-bg:            #ffffff;
-  --color-surface:       #f7f7f7;
+  --color-bg: #ffffff;
+  --color-surface: #f7f7f7;
   --color-surface-lighter: #f0f0f0;
   --color-surface-overlay: #e8e8e8;
 
-  --color-border:        #ebebeb;
-  --color-border-hover:  #d4d4d4;
+  --color-border: #ebebeb;
+  --color-border-hover: #d4d4d4;
 
-  --color-text:          #111111;
-  --color-text-muted:    #6e6e6e;
-  --color-text-subtle:   #adadad;
+  --color-text: #111111;
+  --color-text-muted: #6e6e6e;
+  --color-text-subtle: #adadad;
+
+  --color-syntax-string: #c17d10;
+  --color-syntax-number: #7c4dff;
+  --color-syntax-type: #00897b;
+  --color-syntax-comment: #adadad;
+  --color-syntax-keyword: #2ea86f;
 }
 
 /* ============================================
    DARK MODE — toggled by .dark on <html>
    ============================================ */
 .dark {
-  --color-bg:            #0a0a0a;
-  --color-surface:       #111111;
+  --color-bg: #0a0a0a;
+  --color-surface: #111111;
   --color-surface-lighter: #1a1a1a;
   --color-surface-overlay: #222222;
 
-  --color-border:        #1e1e1e;
-  --color-border-hover:  #2e2e2e;
+  --color-border: #1e1e1e;
+  --color-border-hover: #2e2e2e;
 
-  --color-text:          #ededed;
-  --color-text-muted:    #8a8a8a;
-  --color-text-subtle:   #444444;
+  --color-text: #ededed;
+  --color-text-muted: #8a8a8a;
+  --color-text-subtle: #444444;
+
+  --color-syntax-string: #e9c46a;
+  --color-syntax-number: #b388ff;
+  --color-syntax-type: #80cbc4;
+  --color-syntax-comment: #4e4e4e;
+  --color-syntax-keyword: #3ecf8e;
 }
 
 /* ============================================
@@ -59,7 +70,11 @@
   body {
     background-color: var(--color-bg);
     color: var(--color-text);
-    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    font-family:
+      "Inter",
+      system-ui,
+      -apple-system,
+      sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -89,11 +104,21 @@
   }
 
   /* Scrollbars */
-  .no-scrollbar::-webkit-scrollbar { display: none; }
-  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 
-  .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
-  .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
   .custom-scrollbar::-webkit-scrollbar-thumb {
     background: var(--color-border-hover);
     border-radius: 999px;

@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Loader2, ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/Button";
 import { useRequestsQuery } from "@/hooks/queries/useRequests";
 import { useDoosQuery } from "@/hooks/queries/useDoos";
+import { Badge } from "@/components/ui/Badge";
+import { IconButton } from "@/components/ui/IconButton";
 import { RequestsTable } from "@/components/requests/RequestsTable";
 import { RequestDetailsDrawer } from "@/components/requests/RequestDetailsDrawer";
 
@@ -30,24 +31,24 @@ export function RequestsPage() {
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-bg overflow-hidden">
-      {/* Header */}
-      <header className="h-11 border-b border-border flex items-center justify-between px-5 shrink-0 bg-bg">
+    <div className="flex-1 flex flex-col h-full bg-bg overflow-hidden rounded-none">
+      <header className="h-11 border-b border-border flex items-center justify-between px-5 bg-bg/80 backdrop-blur-md sticky top-0 z-30 shrink-0">
         <div className="flex items-center gap-3">
-          <h1 className="text-[13px] font-semibold text-text">Requests</h1>
+          <h1 className="text-[11px] font-bold text-text-muted">Execution Logs</h1>
           {meta?.total != null && (
-            <span className="text-[11px] font-mono text-text-subtle tabular-nums">
+            <Badge variant="neutral" size="xs" className="font-mono tabular-nums opacity-60 rounded-none">
               {meta.total}
-            </span>
+            </Badge>
           )}
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
-          <span className="text-[10px] font-mono text-text-subtle uppercase tracking-widest">live</span>
+          <Badge variant="brand" size="xs" className="gap-1.5 px-2 py-0.5 animate-pulse rounded-none">
+            <div className="w-1 h-1 rounded-full bg-current" />
+            LIVE
+          </Badge>
         </div>
       </header>
 
-      {/* Table */}
       <main className="flex-1 overflow-auto custom-scrollbar">
         <RequestsTable
           requests={requests}
@@ -57,34 +58,31 @@ export function RequestsPage() {
         />
       </main>
 
-      {/* Pagination */}
       {meta && meta.lastPage > 1 && (
         <footer className="h-11 border-t border-border flex items-center justify-between px-5 shrink-0 bg-bg">
           <span className="text-[11px] font-mono text-text-subtle tabular-nums">
             {(page - 1) * limit + 1}–{Math.min(page * limit, meta.total)} / {meta.total}
           </span>
           <div className="flex items-center gap-1">
-            <Button
+            <IconButton
               variant="ghost"
               size="sm"
-              className="h-7 w-7 p-0"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
             >
               <ChevronLeft size={13} />
-            </Button>
+            </IconButton>
             <span className="text-[11px] font-mono text-text-muted px-2 tabular-nums">
               {page} / {meta.lastPage}
             </span>
-            <Button
+            <IconButton
               variant="ghost"
               size="sm"
-              className="h-7 w-7 p-0"
               onClick={() => setPage((p) => Math.min(meta.lastPage, p + 1))}
               disabled={page === meta.lastPage}
             >
               <ChevronRight size={13} />
-            </Button>
+            </IconButton>
           </div>
         </footer>
       )}

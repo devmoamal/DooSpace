@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
 
-
 interface SidebarSectionProps {
   title: string;
   isCollapsed: boolean;
@@ -9,13 +8,15 @@ interface SidebarSectionProps {
 
 export function SidebarSection({ title, isCollapsed, children }: SidebarSectionProps) {
   return (
-    <div className="space-y-0.5 mt-4 first:mt-2">
+    <div className="space-y-1 mb-6 first:mt-0">
       {!isCollapsed && (
-        <p className="px-4 mb-1 text-[9px] font-semibold text-text-subtle uppercase tracking-[0.12em]">
+        <p className="px-5 mb-2 text-[10px] font-bold text-text-subtle/50 select-none">
           {title}
         </p>
       )}
-      {children}
+      <div className="space-y-0.5">
+        {children}
+      </div>
     </div>
   );
 }

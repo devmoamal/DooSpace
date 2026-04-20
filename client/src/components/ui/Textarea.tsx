@@ -33,7 +33,7 @@ export const Textarea: React.FC<TextareaProps> = ({
       <div className="flex flex-col gap-1.5 w-full">
         <textarea
           className={cn(
-            "w-full px-3 py-2 bg-surface border border-border rounded text-[13px] text-text outline-none transition-colors placeholder:text-text-subtle font-mono min-h-[100px] resize-none",
+            "w-full px-3 py-2 bg-surface border border-border rounded-none text-[13px] text-text outline-none transition-colors placeholder:text-text-subtle font-mono min-h-[100px] resize-none",
             "focus:border-border-hover focus:bg-bg",
             error && "border-red-500/50 focus:border-red-500",
             className,

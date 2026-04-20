@@ -1,19 +1,12 @@
 import React from "react";
-import { EarthIcon, Sparkles, Copy, ExternalLink } from "lucide-react";
+import { EarthIcon, Copy, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
-import { cn } from "@/lib/cn";
 
 interface BrowserURLBarProps {
   id: number;
-  onFormat: () => void;
-  isFormatting: boolean;
 }
 
-export const BrowserURLBar: React.FC<BrowserURLBarProps> = ({
-  id,
-  onFormat,
-  isFormatting,
-}) => {
+export const BrowserURLBar: React.FC<BrowserURLBarProps> = ({ id }) => {
   const deploymentUrl = `http://localhost:3000/doos/doo_${id}`;
 
   const handleCopy = () => {
@@ -34,14 +27,6 @@ export const BrowserURLBar: React.FC<BrowserURLBarProps> = ({
         </div>
 
         <div className="flex items-center gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button
-            onClick={onFormat}
-            disabled={isFormatting}
-            className="p-1 rounded text-text-subtle hover:text-text-muted hover:bg-surface-lighter transition-colors cursor-pointer"
-            title="Format"
-          >
-            <Sparkles size={12} className={cn(isFormatting && "animate-pulse")} />
-          </button>
           <button
             onClick={handleCopy}
             className="p-1 rounded text-text-subtle hover:text-text-muted hover:bg-surface-lighter transition-colors cursor-pointer"

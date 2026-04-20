@@ -1,7 +1,8 @@
-import { X, Zap, Database, ArrowRightLeft, AlertCircle, Info } from "lucide-react";
+import { X, Zap, Database, ArrowRightLeft, AlertCircle, Info, Terminal, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { DooPix } from "@/components/ui/DooPix";
-import { useThemeStore } from "@/stores/theme.store";
+import { Badge } from "@/components/ui/Badge";
+import { IconButton } from "@/components/ui/IconButton";
 
 interface RequestDetailsDrawerProps {
   request: any | null;
@@ -21,79 +22,86 @@ function classifyLog(line: string): LogKind {
   return "log";
 }
 
-const LOG_STYLES: Record<LogKind, { dot: string; text: string; icon: any }> = {
-  error:   { dot: "bg-red-500",    text: "text-red-400",    icon: AlertCircle },
-  callDoo: { dot: "bg-brand",      text: "text-brand",      icon: ArrowRightLeft },
-  db:      { dot: "bg-amber-600",  text: "text-amber-500",  icon: Database },
-  fetch:   { dot: "bg-blue-500",   text: "text-blue-400",   icon: Zap },
-  log:     { dot: "bg-text-subtle",text: "text-text-muted", icon: Info },
-  info:    { dot: "bg-purple-500", text: "text-purple-400", icon: Info },
+const LOG_STYLES: Record<LogKind, { dot: string; text: string; icon: any; variant: any }> = {
+  error:   { dot: "bg-red-500",    text: "text-red-400",    icon: AlertCircle,    variant: "danger" },
+  callDoo: { dot: "bg-brand",      text: "text-brand",      icon: ArrowRightLeft, variant: "brand" },
+  db:      { dot: "bg-amber-600",  text: "text-amber-500",  icon: Database,       variant: "warning" },
+  fetch:   { dot: "bg-blue-500",   text: "text-blue-400",   icon: Zap,            variant: "info" },
+  log:     { dot: "bg-text-subtle",text: "text-text-muted", icon: Info,           variant: "neutral" },
+  info:    { dot: "bg-purple-500", text: "text-purple-400", icon: Info,           variant: "neutral" },
 };
 
 export function RequestDetailsDrawer({ request, onClose, getDooName }: RequestDetailsDrawerProps) {
   if (!request) return null;
-  const { theme } = useThemeStore();
-  const isSuccess = request.status < 400;
+  const isSuccess = request.status < 400 && request.status !== 0;
 
   const logs: string[] = Array.isArray(request.logs) ? request.logs : [];
 
   return (
     <>
-      <div className="fixed inset-0 z-100" onClick={onClose} />
+      <div className="fixed inset-0 z-100 bg-black/10 backdrop-blur-sm animate-in fade-in duration-200" onClick={onClose} />
 
-      <div className="fixed inset-y-0 right-0 w-[460px] bg-bg border-l border-border z-101 flex flex-col">
+      <div className="fixed inset-y-0 right-0 w-[500px] bg-bg border-l border-border z-101 flex flex-col shadow-2xl animate-in slide-in-from-right duration-300 ease-out rounded-none">
         {/* Header */}
-        <header className="h-11 flex items-center justify-between px-5 border-b border-border shrink-0">
+        <header className="h-11 flex items-center justify-between px-5 border-b border-border bg-bg/80 backdrop-blur-md shrink-0 sticky top-0 z-10">
           <div className="flex items-center gap-3 min-w-0">
-            <span className={cn(
-              "text-[12px] font-mono font-semibold tabular-nums shrink-0 px-1.5 py-0.5 rounded text-[10px]",
-              isSuccess
-                ? "text-brand bg-brand/10"
-                : "text-red-500 bg-red-500/10",
-            )}>
-              {request.status}
-            </span>
-            <span className="text-[10px] font-mono text-text-subtle uppercase shrink-0 tracking-wider">
-              {request.method}
-            </span>
-            <span className="text-[11px] font-mono text-text-muted truncate">{request.path}</span>
+            <Badge 
+              variant={isSuccess ? "success" : "danger"} 
+              size="sm" 
+              className="font-mono tabular-nums font-bold"
+            >
+              {request.status || "000"}
+            </Badge>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold text-text-subtle">{request.method}</span>
+              <ChevronRight size={10} className="text-text-subtle/30" />
+              <span className="text-[11px] font-mono text-text-muted truncate max-w-[200px]">{request.path}</span>
+            </div>
           </div>
-          <button
+          <IconButton
             onClick={onClose}
-            className="p-1 text-text-subtle hover:text-text-muted transition-colors rounded hover:bg-surface shrink-0 ml-3 cursor-pointer"
+            variant="ghost"
+            size="sm"
+            title="Close details"
+            className="text-text-subtle"
           >
-            <X size={15} />
-          </button>
+            <X size={16} />
+          </IconButton>
         </header>
 
-        <div className="flex-1 overflow-y-auto custom-scrollbar divide-y divide-border">
-          {/* Meta */}
-          <section className="px-5 py-4 grid grid-cols-3 gap-4">
-            <div>
-              <p className="text-[10px] text-text-subtle uppercase tracking-widest mb-1.5">Source</p>
-              <p className="text-[12px] font-mono text-text">{getDooName(request.doo_id)}</p>
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
+          {/* Metadata Grid */}
+          <section className="px-6 py-6 grid grid-cols-3 gap-6 border-b border-border/50 bg-bg-alt/30">
+            <div className="space-y-1">
+              <p className="text-[10px] font-bold text-text-subtle">Trigger</p>
+              <div className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-none bg-brand/50" />
+                <p className="text-[12px] font-bold text-text font-mono tracking-tight">{getDooName(request.doo_id)}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-[10px] text-text-subtle uppercase tracking-widest mb-1.5">Duration</p>
-              <p className="text-[12px] font-mono text-text tabular-nums">{request.duration ?? 0}ms</p>
+            <div className="space-y-1">
+              <p className="text-[10px] font-bold text-text-subtle">Duration</p>
+              <p className="text-[12px] font-bold text-text font-mono tabular-nums">{request.duration ?? 0}ms</p>
             </div>
-            <div>
-              <p className="text-[10px] text-text-subtle uppercase tracking-widest mb-1.5">Trace</p>
-              <p className="text-[12px] font-mono text-text tabular-nums">{logs.length} events</p>
+            <div className="space-y-1">
+              <p className="text-[10px] font-bold text-text-subtle">Steps</p>
+              <p className="text-[12px] font-bold text-text font-mono tabular-nums">{logs.length} events</p>
             </div>
           </section>
 
-          {/* DooPix — only renders when there are actual trace events */}
+          {/* DooPix Signature */}
           {request.doo_pix && (
-            <section className="px-5 py-4">
-              <p className="text-[10px] text-text-subtle uppercase tracking-widest mb-3">Signature</p>
-              <DooPix
-                pixels={request.doo_pix}
-                pixelSize={10}
-                maxCols={20}
-                className="w-full"
-              />
-              <div className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1">
+            <section className="px-6 py-6 border-b border-border/50">
+              <p className="text-[10px] font-bold text-text-subtle mb-4">Execution Fingerprint</p>
+              <div className="p-1 border border-border bg-black/5 rounded-none">
+                <DooPix
+                  pixels={request.doo_pix}
+                  pixelSize={8}
+                  maxCols={32}
+                  className="w-full"
+                />
+              </div>
+              <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2">
                 {(["brand", "purple", "db", "fetch", "log", "error"] as const).map((kind) => {
                   const colorMap: Record<string, string> = {
                     brand:  "bg-brand",
@@ -104,12 +112,12 @@ export function RequestDetailsDrawer({ request, onClose, getDooName }: RequestDe
                     error:  "bg-red-500",
                   };
                   const labelMap: Record<string, string> = {
-                    brand: "callDoo", purple: "chain", db: "db", fetch: "fetch", log: "log", error: "error",
+                    brand: "call", purple: "chain", db: "data", fetch: "req", log: "log", error: "err",
                   };
                   return (
-                    <div key={kind} className="flex items-center gap-1.5">
-                      <span className={`w-[7px] h-[7px] rounded-[1px] shrink-0 ${colorMap[kind]}`} />
-                      <span className="text-[9px] font-mono text-text-subtle">{labelMap[kind]}</span>
+                    <div key={kind} className="flex items-center gap-1.5 px-2 py-0.5 bg-surface/50 border border-border/50">
+                      <span className={`w-1.5 h-1.5 rounded-none shrink-0 ${colorMap[kind]}`} />
+                      <span className="text-[9px] font-bold text-text-subtle">{labelMap[kind]}</span>
                     </div>
                   );
                 })}
@@ -117,61 +125,80 @@ export function RequestDetailsDrawer({ request, onClose, getDooName }: RequestDe
             </section>
           )}
 
-          {/* Execution Trace */}
-          <section className="px-5 py-4">
-            <p className="text-[10px] text-text-subtle uppercase tracking-widest mb-3">
-              Trace · {logs.length}
-            </p>
-            <div className="space-y-0 font-mono text-[11px]">
+          {/* Trace Events */}
+          <section className="px-6 py-6 border-b border-border/50">
+             <div className="flex items-center justify-between mb-4">
+                <p className="text-[10px] font-bold text-text-subtle">Trace Events</p>
+                <Badge variant="neutral" size="xs" className="font-bold opacity-60">{logs.length}</Badge>
+             </div>
+            <div className="space-y-1 font-mono text-[11px]">
               {logs.length > 0 ? (
                 logs.map((log: string, idx: number) => {
                   const kind = classifyLog(log);
                   const style = LOG_STYLES[kind];
                   const IconComp = style.icon;
-                  // Strip timestamp prefix if present
                   const text = log.replace(/^\[\d{4}-.*?Z\]\s*/, "").replace(/^ERROR:\s*/i, "");
                   const isError = kind === "error";
+                  
                   return (
                     <div
                       key={idx}
                       className={cn(
-                        "flex items-start gap-2.5 px-3 py-1.5 rounded-sm transition-colors",
-                        isError ? "bg-red-500/5" : "hover:bg-surface",
+                        "flex items-start gap-3 px-3 py-2 border border-transparent transition-all group",
+                        isError ? "bg-red-500/5 border-red-500/10" : "hover:bg-surface hover:border-border/50",
                       )}
                     >
-                      <span className="shrink-0 mt-0.5">
-                        <IconComp size={10} className={style.text} />
-                      </span>
-                      <span className="text-text-subtle shrink-0 w-4 text-right select-none tabular-nums">
-                        {idx + 1}
-                      </span>
-                      <span className={cn("flex-1 break-all leading-relaxed", style.text)}>
-                        {text}
-                      </span>
+                       <div className="flex flex-col items-center gap-1 shrink-0 mt-0.5">
+                          <IconComp size={12} className={cn(style.text, "opacity-70 group-hover:opacity-100 transition-opacity")} />
+                       </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                           <span className="text-[9px] font-bold text-text-subtle/40 tabular-nums">STEP {String(idx + 1).padStart(2, '0')}</span>
+                           <Badge variant={style.variant} size="xs" className="text-[8px] px-1 py-0 h-3 font-black">{(kind === "callDoo" ? "DOO" : kind).toUpperCase()}</Badge>
+                        </div>
+                        <span className={cn("inline-block break-all leading-relaxed", isError ? "text-red-400 font-bold" : "text-text-muted")}>
+                          {text}
+                        </span>
+                      </div>
                     </div>
                   );
                 })
               ) : (
-                <span className="text-text-subtle px-3">—</span>
+                <div className="py-10 flex flex-col items-center justify-center opacity-30 border border-dashed border-border">
+                   <Terminal size={20} className="mb-2" />
+                   <p className="text-[10px] font-bold text-center">No trace data recorded</p>
+                </div>
               )}
             </div>
           </section>
 
-          {/* Response */}
-          <section className="px-5 py-4">
-            <p className="text-[10px] text-text-subtle uppercase tracking-widest mb-3">Response</p>
+          {/* Response Payload */}
+          <section className="px-6 py-8">
+            <div className="flex items-center gap-2 mb-4">
+              <p className="text-[10px] font-bold text-text-subtle">Terminal Payload</p>
+              <div className="flex-1 h-px bg-border/50" />
+            </div>
             {request.response ? (
-              <pre className={cn(
-                "text-[11px] font-mono whitespace-pre-wrap break-all leading-relaxed rounded p-3",
-                isSuccess ? "text-text bg-surface" : "text-red-400 bg-red-500/5",
-              )}>
-                {(() => {
-                  try { return JSON.stringify(JSON.parse(request.response), null, 2); }
-                  catch { return request.response; }
-                })()}
-              </pre>
+              <div className="relative group">
+                <pre className={cn(
+                  "text-[11px] font-mono whitespace-pre-wrap break-all leading-relaxed p-4 border border-border shadow-inner transition-all",
+                  isSuccess ? "text-text bg-surface/50 group-hover:bg-surface" : "text-red-400 bg-red-500/5 border-red-500/20",
+                )}>
+                  {(() => {
+                    try { return JSON.stringify(JSON.parse(request.response), null, 2); }
+                    catch { return request.response; }
+                  })()}
+                </pre>
+                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                   <IconButton size="xs" variant="ghost" title="Copy payload">
+                      <ArrowRightLeft size={10} className="rotate-90" />
+                   </IconButton>
+                </div>
+              </div>
             ) : (
-              <span className="text-[11px] font-mono text-text-subtle px-3">null</span>
+              <div className="p-8 border border-border border-dashed flex flex-col items-center justify-center bg-bg-alt/20">
+                 <p className="text-[10px] font-bold font-mono text-text-subtle">VOID : NULL</p>
+              </div>
             )}
           </section>
         </div>

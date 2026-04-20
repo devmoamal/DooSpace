@@ -1,10 +1,24 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import {
-  Loader2, Plus, Trash2, Database, Terminal,
-  ChevronLeft, ChevronRight, Play, AlertCircle, Clock,
+  Loader2,
+  Plus,
+  Trash2,
+  Database,
+  Terminal,
+  ChevronLeft,
+  ChevronRight,
+  Play,
+  AlertCircle,
+  Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { useDooDooBoxQuery, useDeleteDooBoxKeyMutation } from "@/hooks/queries/useDooBox";
+import { Badge } from "@/components/ui/Badge";
+import { IconButton } from "@/components/ui/IconButton";
+import { Select } from "@/components/ui/Select";
+import {
+  useDooDooBoxQuery,
+  useDeleteDooBoxKeyMutation,
+} from "@/hooks/queries/useDooBox";
 import { dooboxService } from "@/services/doobox.service";
 import { type DooBoxUsage } from "@doospace/shared";
 import { toast } from "sonner";
@@ -16,7 +30,10 @@ interface UnifiedWorkspaceProps {
   onAdd: () => void;
 }
 
-function formatTime(date: Date | string | null, type: "expiry" | "history" = "history") {
+function formatTime(
+  date: Date | string | null,
+  type: "expiry" | "history" = "history",
+) {
   if (!date) return type === "expiry" ? "Never" : "—";
   const d = new Date(date);
   const now = new Date();
@@ -50,7 +67,11 @@ function ExpiryTag({ date }: { date: Date | string | null }) {
   }, [update]);
 
   if (!date) {
-    return <span className="text-[11px] font-mono text-text-subtle/40">—</span>;
+    return (
+      <Badge variant="neutral" size="xs" className="opacity-30 border-none">
+        —
+      </Badge>
+    );
   }
 
   const d = new Date(date);
@@ -58,31 +79,40 @@ function ExpiryTag({ date }: { date: Date | string | null }) {
   const isSoon = d.getTime() - Date.now() < 3600000;
 
   return (
-    <span className={cn(
-      "inline-flex items-center gap-1 text-[11px] font-mono px-1.5 py-0.5 rounded",
-      isExpired
-        ? "text-red-400 bg-red-500/10"
-        : isSoon
-          ? "text-amber-400 bg-amber-500/10"
-          : "text-text-subtle",
-    )}>
+    <Badge
+      variant={isExpired ? "danger" : isSoon ? "warning" : "neutral"}
+      size="xs"
+      className="gap-1 font-bold font-mono"
+    >
       {(isExpired || isSoon) && <Clock size={9} />}
       {text}
-    </span>
+    </Badge>
   );
 }
 
 function TimeTag({ date }: { date: Date | string | null }) {
   const [text, setText] = useState("—");
-  const update = useCallback(() => setText(formatTime(date, "history")), [date]);
-  useEffect(() => { update(); const t = setInterval(update, 30000); return () => clearInterval(t); }, [update]);
-  return <span className="text-[11px] font-mono text-text-subtle">{text}</span>;
+  const update = useCallback(
+    () => setText(formatTime(date, "history")),
+    [date],
+  );
+  useEffect(() => {
+    update();
+    const t = setInterval(update, 30000);
+    return () => clearInterval(t);
+  }, [update]);
+  return (
+    <span className="text-[11px] font-mono text-text-subtle/70">{text}</span>
+  );
 }
 
-// Columns for default view (no "value")
 const DEFAULT_COLUMNS = ["key", "expire_at", "updated_at"];
 
-export function DooBoxUnifiedWorkspace({ doo, onEdit, onAdd }: UnifiedWorkspaceProps) {
+export function DooBoxUnifiedWorkspace({
+  doo,
+  onEdit,
+  onAdd,
+}: UnifiedWorkspaceProps) {
   const [isQueryOpen, setIsQueryOpen] = useState(false);
   const [sqlQuery, setSqlQuery] = useState("");
   const [isExecuting, setIsExecuting] = useState(false);
@@ -91,7 +121,8 @@ export function DooBoxUnifiedWorkspace({ doo, onEdit, onAdd }: UnifiedWorkspaceP
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(15);
 
-  const { data: defaultKeys = [], isLoading: isDefaultLoading } = useDooDooBoxQuery(doo?.dooId || 0);
+  const { data: defaultKeys = [], isLoading: isDefaultLoading } =
+    useDooDooBoxQuery(doo?.dooId || 0);
   const deleteMutation = useDeleteDooBoxKeyMutation();
 
   const activeData = customData || defaultKeys;
@@ -104,30 +135,49 @@ export function DooBoxUnifiedWorkspace({ doo, onEdit, onAdd }: UnifiedWorkspaceP
     return activeData.slice(start, start + pageSize);
   }, [activeData, currentPage, pageSize]);
 
-  useEffect(() => { setCurrentPage(1); }, [activeData.length, pageSize]);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeData.length, pageSize]);
 
   const columns = useMemo(() => {
     if (customData) {
       if (customData.length === 0) return [];
-      return Object.keys(customData[0]).filter((k) => k !== "doo_id" && k !== "value");
+      return Object.keys(customData[0]).filter(
+        (k) => k !== "doo_id" && k !== "value",
+      );
     }
     return DEFAULT_COLUMNS;
   }, [customData]);
 
   const executeSql = async () => {
-    if (!sqlQuery.trim()) { setCustomData(null); setSqlError(null); return; }
-    setIsExecuting(true); setSqlError(null);
+    if (!sqlQuery.trim()) {
+      setCustomData(null);
+      setSqlError(null);
+      return;
+    }
+    setIsExecuting(true);
+    setSqlError(null);
     try {
       const res = await dooboxService.executeSql(doo!.dooId, sqlQuery);
       if (res.ok) {
         setCustomData(Array.isArray(res.data) ? res.data : [res.data]);
         toast.success("Query executed");
-      } else { setSqlError(res.message || "Query failed"); }
-    } catch (err: any) { setSqlError(err.message || "Error"); }
-    finally { setIsExecuting(false); }
+      } else {
+        setSqlError(res.message || "Query failed");
+      }
+    } catch (err: any) {
+      setSqlError(err.message || "Error");
+    } finally {
+      setIsExecuting(false);
+    }
   };
 
-  const reset = () => { setCustomData(null); setSqlQuery(""); setSqlError(null); setCurrentPage(1); };
+  const reset = () => {
+    setCustomData(null);
+    setSqlQuery("");
+    setSqlError(null);
+    setCurrentPage(1);
+  };
 
   const handleDelete = async (e: React.MouseEvent, key: string) => {
     e.stopPropagation();
@@ -136,80 +186,112 @@ export function DooBoxUnifiedWorkspace({ doo, onEdit, onAdd }: UnifiedWorkspaceP
       await deleteMutation.mutateAsync({ dooId: doo!.dooId, key });
       toast.success("Deleted");
       if (customData) executeSql();
-    } catch { toast.error("Delete failed"); }
+    } catch {
+      toast.error("Delete failed");
+    }
   };
 
   if (!doo) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center bg-bg gap-3">
-        <Database size={22} className="text-text-subtle" />
-        <p className="text-[12px] text-text-subtle">Select a Doo to inspect its data</p>
+      <div className="flex-1 flex flex-col items-center justify-center bg-bg gap-5 opacity-40">
+        <div className="w-16 h-16 border border-dashed border-border flex items-center justify-center rounded-none">
+          <Database size={24} className="text-text-subtle" />
+        </div>
+        <p className="text-[13px] font-bold text-text-subtle">
+          Select Workspace
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-bg overflow-hidden">
+    <div className="flex-1 flex flex-col bg-bg overflow-hidden rounded-none border-l border-border/50">
       {/* Header */}
-      <header className="h-11 border-b border-border flex items-center justify-between px-5 shrink-0">
+      <header className="h-11 border-b border-border flex items-center justify-between px-5 shrink-0 bg-bg/80 backdrop-blur-md">
         <div className="flex items-center gap-3">
-          <span className="text-[13px] font-medium text-text">{doo.dooName}</span>
-          <span className="text-[11px] font-mono text-text-subtle tabular-nums">{totalItems} records</span>
+          <Badge
+            variant="neutral"
+            size="sm"
+            className="font-bold text-text-muted rounded-none border-border px-2"
+          >
+            {doo.dooName.toUpperCase()}
+          </Badge>
+          <Badge
+            variant="neutral"
+            size="sm"
+            className="font-mono tabular-nums opacity-60 rounded-none border-transparent"
+          >
+            {totalItems} RECORDS
+          </Badge>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsQueryOpen(!isQueryOpen)}
             className={cn(
-              "flex items-center gap-1.5 h-7 px-2.5 rounded text-[11px] font-medium transition-colors cursor-pointer",
+              "flex items-center gap-2 h-7.5 px-3 rounded-none text-[10px] font-bold transition-all cursor-pointer border border-transparent",
               isQueryOpen
-                ? "bg-surface text-text border border-border"
+                ? "bg-surface text-brand border-brand/20 shadow-sm"
                 : "text-text-muted hover:bg-surface hover:text-text",
             )}
           >
-            <Terminal size={12} />
-            SQL
+            <Terminal size={14} />
+            SQL CONSOLE
           </button>
-          <Button size="sm" onClick={onAdd}>
-            <Plus size={12} />
-            Add
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={onAdd}
+            className="h-7.5 px-4 rounded-none gap-2 font-bold text-[10px]"
+          >
+            <Plus size={14} />
+            Add Entity
           </Button>
         </div>
       </header>
 
       {/* SQL Console */}
       {isQueryOpen && (
-        <div className="border-b border-border shrink-0 bg-surface">
-          <div className="p-4 space-y-2.5 max-w-3xl">
-            <div className="relative">
-              <textarea
-                value={sqlQuery}
-                onChange={(e) => setSqlQuery(e.target.value)}
-                className={cn(
-                  "w-full h-24 px-3 py-2.5 bg-bg border rounded-md resize-none outline-none text-[12px] font-mono text-text transition-colors no-scrollbar",
-                  "placeholder:text-text-subtle",
-                  sqlError
-                    ? "border-red-500/40 focus:border-red-500/60"
-                    : "border-border focus:border-border-hover",
+        <div className="shrink-0 bg-surface/30 border-b border-border animate-in slide-in-from-top-1 duration-200">
+          <div className="relative p-2">
+            <textarea
+              value={sqlQuery}
+              onChange={(e) => setSqlQuery(e.target.value)}
+              className={cn(
+                "w-full h-32 px-4 py-3 bg-bg border-none resize-none outline-none text-[12px] font-mono text-text transition-all no-scrollbar shadow-inner rounded-none",
+                "placeholder:text-text-subtle opacity-90 focus:opacity-100",
+                sqlError && "bg-red-500/5",
+              )}
+              placeholder="-- Execute custom SQL on DooBox storage...&#10;SELECT * FROM doobox WHERE key LIKE 'user%'; "
+              spellCheck={false}
+            />
+            <div className="absolute bottom-5 right-5 flex items-center gap-4">
+              {customData && (
+                <button
+                  onClick={reset}
+                  className="text-[10px] font-bold text-text-subtle hover:text-brand transition-all cursor-pointer"
+                >
+                  Clear Results
+                </button>
+              )}
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={executeSql}
+                disabled={isExecuting}
+                className="h-8 px-5 rounded-none font-black text-[10px] shadow-lg shadow-brand/10"
+              >
+                {isExecuting ? (
+                  <Loader2 size={12} className="animate-spin" />
+                ) : (
+                  <Play size={12} className="fill-current" />
                 )}
-                placeholder="SELECT * FROM storage;"
-                spellCheck={false}
-              />
-              <div className="absolute bottom-2.5 right-2.5 flex items-center gap-2">
-                {customData && (
-                  <button onClick={reset} className="text-[10px] text-text-subtle hover:text-text-muted transition-colors cursor-pointer">
-                    Reset
-                  </button>
-                )}
-                <Button size="sm" onClick={executeSql} disabled={isExecuting}>
-                  {isExecuting ? <Loader2 size={11} className="animate-spin" /> : <Play size={11} />}
-                  Run
-                </Button>
-              </div>
+                EXECUTE
+              </Button>
             </div>
             {sqlError && (
-              <div className="flex items-center gap-2 px-3 py-2 border border-red-500/20 rounded-md text-red-400 text-[11px] font-mono bg-red-500/5">
-                <AlertCircle size={12} className="shrink-0" />
-                {sqlError}
+              <div className="mt-2 flex items-start gap-3 px-4 py-3 border border-red-500/10 rounded-none text-red-400 text-[11px] font-mono bg-red-500/5 backdrop-blur-sm animate-in fade-in">
+                <AlertCircle size={14} className="shrink-0 mt-0.5" />
+                <span className="leading-relaxed">{sqlError}</span>
               </div>
             )}
           </div>
@@ -220,58 +302,79 @@ export function DooBoxUnifiedWorkspace({ doo, onEdit, onAdd }: UnifiedWorkspaceP
       <div className="flex-1 overflow-auto custom-scrollbar relative">
         {isLoading ? (
           <div className="absolute inset-0 flex items-center justify-center bg-bg/80">
-            <Loader2 className="animate-spin text-text-subtle" size={18} />
+            <Loader2 className="animate-spin text-brand" size={24} />
           </div>
         ) : paginatedData.length === 0 ? (
-          <div className="h-full flex items-center justify-center py-20">
-            <p className="text-[12px] font-mono text-text-subtle">empty</p>
+          <div className="h-full flex flex-col items-center justify-center py-24 opacity-30">
+            <Database size={32} className="mb-4" />
+            <p className="text-[11px] font-bold tracking-[0.3em]">
+              No Records Found
+            </p>
           </div>
         ) : (
           <table className="w-full text-left border-collapse">
-            <thead className="sticky top-0 bg-bg border-b border-border z-20">
+            <thead className="sticky top-0 bg-bg/95 backdrop-blur-sm border-b border-border z-20">
               <tr>
-                <th className="w-6 px-4 py-2.5" />
+                <th className="w-6 px-5 py-3" />
                 {columns.map((col) => (
-                  <th key={col} className="px-4 py-2.5 text-[10px] font-medium text-text-subtle uppercase tracking-widest">
-                    {col === "expire_at" ? "Expiry" : col === "updated_at" ? "Updated" : col.replace("_", " ")}
+                  <th
+                    key={col}
+                    className="px-4 py-3 text-[10px] font-bold text-text-muted"
+                  >
+                    {col === "expire_at"
+                      ? "TTL Status"
+                      : col === "updated_at"
+                        ? "Last Change"
+                        : col.replace("_", " ")}
                   </th>
                 ))}
-                <th className="w-10 px-3 py-2.5" />
+                <th className="px-5 py-3 text-right text-[10px] font-bold text-text-muted">
+                  Actions
+                </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-border/50">
               {paginatedData.map((row, i) => (
                 <tr
                   key={row.key || `row-${i}`}
                   onClick={() => onEdit(row.key, row.value)}
-                  className="border-b border-border cursor-pointer hover:bg-surface group transition-colors"
+                  className="border-b border-border/50 cursor-pointer hover:bg-surface/50 group transition-all duration-150"
                 >
-                  <td className="px-4 py-3">
-                    <div className="w-[2px] h-3 bg-border group-hover:bg-brand rounded-full transition-colors" />
+                  <td className="px-5 py-4">
+                    <div className="w-[2px] h-4 bg-border/50 group-hover:bg-brand transition-all duration-300" />
                   </td>
                   {columns.map((col) => {
                     const val = row[col];
                     return (
-                      <td key={col} className="px-4 py-3 truncate max-w-[240px]">
+                      <td
+                        key={col}
+                        className="px-4 py-4 truncate max-w-[240px]"
+                      >
                         {col === "expire_at" ? (
                           <ExpiryTag date={val} />
                         ) : col.includes("at") ? (
                           <TimeTag date={val} />
                         ) : col === "key" ? (
-                          <span className="text-[12px] font-mono text-text">{val}</span>
+                          <span className="text-[12px] font-mono text-text font-bold bg-surface/50 px-2 py-1 transition-all rounded-none">
+                            {val}
+                          </span>
                         ) : (
-                          <span className="text-[11px] font-mono text-text-muted">{String(val ?? "—")}</span>
+                          <span className="text-[11px] font-mono text-text-subtle font-medium">
+                            {String(val ?? "—")}
+                          </span>
                         )}
                       </td>
                     );
                   })}
-                  <td className="px-3 py-3">
-                    <button
+                  <td className="px-5 py-4 text-right">
+                    <IconButton
                       onClick={(e) => handleDelete(e, row.key)}
-                      className="p-1 text-text-subtle hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 cursor-pointer rounded hover:bg-red-500/10"
+                      variant="ghost"
+                      size="xs"
+                      className="text-text-subtle hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
                     >
-                      <Trash2 size={12} />
-                    </button>
+                      <Trash2 size={13} />
+                    </IconButton>
                   </td>
                 </tr>
               ))}
@@ -281,37 +384,52 @@ export function DooBoxUnifiedWorkspace({ doo, onEdit, onAdd }: UnifiedWorkspaceP
       </div>
 
       {/* Footer */}
-      <footer className="h-10 border-t border-border px-4 flex items-center justify-between shrink-0 bg-bg">
-        <div className="flex items-center gap-3">
-          <select
+      <footer className="h-10 border-t border-border px-5 flex items-center justify-between shrink-0 bg-bg/50 backdrop-blur-sm">
+        <div className="flex items-center gap-4">
+          <Select
             value={pageSize}
             onChange={(e) => setPageSize(Number(e.target.value))}
-            className="bg-surface border border-border rounded px-2 h-6 text-[11px] font-mono text-text-muted outline-none focus:border-border-hover cursor-pointer transition-colors"
+            className="w-20 h-7 rounded-none"
+            size="sm"
           >
-            {[15, 25, 50, 100].map((v) => <option key={v} value={v}>{v}</option>)}
-          </select>
-          <span className="text-[11px] font-mono text-text-subtle tabular-nums">
-            {Math.min((currentPage - 1) * pageSize + 1, totalItems)}–{Math.min(currentPage * pageSize, totalItems)} / {totalItems}
-          </span>
+            {[15, 25, 50, 100].map((v) => (
+              <option key={v} value={v}>
+                {v}
+              </option>
+            ))}
+          </Select>
+          <Badge
+            variant="neutral"
+            size="sm"
+            className="font-mono tabular-nums opacity-60 border-none"
+          >
+            {Math.min((currentPage - 1) * pageSize + 1, totalItems)}–
+            {Math.min(currentPage * pageSize, totalItems)} OF {totalItems}
+          </Badge>
         </div>
-        <div className="flex items-center gap-1">
-          <button
+        <div className="flex items-center gap-2">
+          <IconButton
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage === 1}
-            className="h-6 w-6 flex items-center justify-center rounded text-text-subtle hover:text-text-muted hover:bg-surface disabled:opacity-30 transition-colors cursor-pointer"
+            variant="ghost"
+            size="sm"
           >
-            <ChevronLeft size={12} />
-          </button>
-          <span className="text-[11px] font-mono text-text-muted px-1 tabular-nums">
-            {currentPage} / {totalPages || 1}
-          </span>
-          <button
+            <ChevronLeft size={14} />
+          </IconButton>
+          <div className="min-w-12 text-center">
+            <span className="text-[11px] font-bold text-text-muted tabular-nums">
+              {currentPage} <span className="opacity-30">/</span>{" "}
+              {totalPages || 1}
+            </span>
+          </div>
+          <IconButton
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={currentPage === totalPages || totalPages === 0}
-            className="h-6 w-6 flex items-center justify-center rounded text-text-subtle hover:text-text-muted hover:bg-surface disabled:opacity-30 transition-colors cursor-pointer"
+            variant="ghost"
+            size="sm"
           >
-            <ChevronRight size={12} />
-          </button>
+            <ChevronRight size={14} />
+          </IconButton>
         </div>
       </footer>
     </div>
