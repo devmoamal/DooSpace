@@ -1,6 +1,12 @@
 import { Doo } from "./context";
 import { dooRepository } from "@/repositories/doo.repository";
 import { secretsRepository } from "@/repositories/secrets.repository";
+import {
+  DooRuntimeError,
+  DooTranspilationError,
+  DooRegistrationError,
+  DooExecutionError,
+} from "./errors";
 
 // ── DooCallClient — callable class for Doo-to-Doo routing ───────────────────
 // Usage: callDoo.get(13, "/users")
@@ -46,10 +52,16 @@ export async function executeDoo(
   secretsMap: Record<string, string> = {},
 ) {
   const transpiler = new Bun.Transpiler({ loader: "ts", target: "node" });
+  const doo = new Doo(dooId, secretsMap);
 
   try {
     // 1. Transpile TypeScript → JS
-    let jsCode = transpiler.transformSync(code);
+    let jsCode: string;
+    try {
+      jsCode = transpiler.transformSync(code);
+    } catch (e: any) {
+      throw new DooTranspilationError(e.message);
+    }
 
     // 2. ESM → CJS
     jsCode = jsCode.replace(
@@ -63,10 +75,9 @@ export async function executeDoo(
     jsCode = jsCode.replace(/export\s+default\s+/g, "exports.default = ");
 
     // 3. Build sandbox objects
-    const doo        = new Doo(dooId, secretsMap);
-    const doobox     = doo.doobox;
-    const secrets    = doo.secrets.asProxy();
-    const callDoo    = new DooCallClient((color) => doo._trace(color));
+    const doobox = doo.doobox;
+    const secrets = doo.secrets.asProxy();
+    const callDoo = new DooCallClient((color) => doo._trace(color));
 
     // 4. Sandbox wrapper — all imports from "doospace" resolve here
     const wrapper = `
@@ -99,7 +110,7 @@ export async function executeDoo(
       try {
         ${jsCode}
       } catch (e) {
-        throw new Error("Runtime Error: " + e.message);
+        throw new Error(e.message);
       }
 
       return typeof exports.default === 'function'
@@ -107,31 +118,51 @@ export async function executeDoo(
         : module.exports.default;
     `;
 
-    const dooFactory  = new Function("_doo", "_doobox", "_secrets", "_callDoo", wrapper);
-    const dooFunction = dooFactory(doo, doobox, secrets, callDoo);
+    let dooFunction: any;
+    try {
+      const dooFactory = new Function(
+        "_doo",
+        "_doobox",
+        "_secrets",
+        "_callDoo",
+        wrapper,
+      );
+      dooFunction = dooFactory(doo, doobox, secrets, callDoo);
+    } catch (e: any) {
+      throw new DooRegistrationError(e.message);
+    }
 
     if (typeof dooFunction !== "function") {
-      throw new Error(
+      throw new DooRegistrationError(
         "Doo must export a default function, e.g.:\n" +
-        "export default function(doo) { doo.get('/', () => ({ ok: true })); }"
+          "export default function(doo) { doo.get('/', () => ({ ok: true })); }",
       );
     }
 
-    dooFunction(doo);
+    try {
+      dooFunction(doo);
+    } catch (e: any) {
+      throw new DooRegistrationError(`Initialization Error: ${e.message}`);
+    }
 
     const startTime = Date.now();
-    const response  = await doo.run(method, path, originalRequest);
-    const duration  = Date.now() - startTime;
+    const response = await doo.run(method, path, originalRequest);
+    const duration = Date.now() - startTime;
 
     return { response, duration, ...doo.getResults() };
-
   } catch (e: any) {
-    const errDoo = new Doo(dooId);
-    errDoo.error(e.message);
+    const message = e.message || "Unknown Runtime Error";
+    doo.error(message);
+
+    const status = e instanceof DooRuntimeError ? e.status : 500;
+
     return {
-      response: new Response(e.message, { status: 500 }),
+      response: new Response(message, {
+        status,
+        headers: { "Content-Type": "text/plain" },
+      }),
       duration: 0,
-      ...errDoo.getResults(),
+      ...doo.getResults(),
     };
   }
 }
