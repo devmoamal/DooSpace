@@ -42,10 +42,6 @@ export function RequestsPage() {
           )}
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="brand" size="xs" className="gap-1.5 px-2 py-0.5 animate-pulse rounded-none">
-            <div className="w-1 h-1 rounded-full bg-current" />
-            LIVE
-          </Badge>
         </div>
       </header>
 

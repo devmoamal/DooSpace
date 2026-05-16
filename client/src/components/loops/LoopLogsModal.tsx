@@ -75,7 +75,7 @@ export function LoopLogsModal({ loop, isOpen, onClose }: LoopLogsModalProps) {
   const meta = data?.meta;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Execution History" maxWidth="2xl">
+    <Modal isOpen={isOpen} onClose={onClose} title="Execution History" maxWidth="xl">
       <div className="space-y-4">
         <div className="flex items-center gap-2 mb-4 p-2 bg-surface rounded border border-border">
           <span className="bg-brand/10 text-brand px-2 py-0.5 rounded text-[11px] font-medium">Doo #{loop.doo_id}</span>

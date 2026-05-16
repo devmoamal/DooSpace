@@ -6,3 +6,5 @@ export * from "./RequestsPage";
 export * from "./DooBoxPage";
 export * from "./DooPlaygroundPage";
 export * from "./LoopsPage";
+export * from "./PagesPage";
+export * from "./PageStudio";

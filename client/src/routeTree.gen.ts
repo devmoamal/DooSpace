@@ -18,7 +18,9 @@ import { Route as DooboxRouteImport } from './routes/doobox'
 import { Route as DooRouteImport } from './routes/doo'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PagesIndexRouteImport } from './routes/pages/index'
 import { Route as DooIndexRouteImport } from './routes/doo/index'
+import { Route as PagesPageIdRouteImport } from './routes/pages/$pageId'
 import { Route as DooIdRouteImport } from './routes/doo/$id'
 import { Route as DooIdPlaygroundRouteImport } from './routes/doo/$id_.playground'
 
@@ -67,10 +69,20 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PagesIndexRoute = PagesIndexRouteImport.update({
+  id: '/pages/',
+  path: '/pages/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DooIndexRoute = DooIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => DooRoute,
+} as any)
+const PagesPageIdRoute = PagesPageIdRouteImport.update({
+  id: '/pages/$pageId',
+  path: '/pages/$pageId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const DooIdRoute = DooIdRouteImport.update({
   id: '/$id',
@@ -94,7 +106,9 @@ export interface FileRoutesByFullPath {
   '/secrets': typeof SecretsRoute
   '/settings': typeof SettingsRoute
   '/doo/$id': typeof DooIdRoute
+  '/pages/$pageId': typeof PagesPageIdRoute
   '/doo/': typeof DooIndexRoute
+  '/pages/': typeof PagesIndexRoute
   '/doo/$id/playground': typeof DooIdPlaygroundRoute
 }
 export interface FileRoutesByTo {
@@ -107,7 +121,9 @@ export interface FileRoutesByTo {
   '/secrets': typeof SecretsRoute
   '/settings': typeof SettingsRoute
   '/doo/$id': typeof DooIdRoute
+  '/pages/$pageId': typeof PagesPageIdRoute
   '/doo': typeof DooIndexRoute
+  '/pages': typeof PagesIndexRoute
   '/doo/$id/playground': typeof DooIdPlaygroundRoute
 }
 export interface FileRoutesById {
@@ -122,7 +138,9 @@ export interface FileRoutesById {
   '/secrets': typeof SecretsRoute
   '/settings': typeof SettingsRoute
   '/doo/$id': typeof DooIdRoute
+  '/pages/$pageId': typeof PagesPageIdRoute
   '/doo/': typeof DooIndexRoute
+  '/pages/': typeof PagesIndexRoute
   '/doo/$id_/playground': typeof DooIdPlaygroundRoute
 }
 export interface FileRouteTypes {
@@ -138,7 +156,9 @@ export interface FileRouteTypes {
     | '/secrets'
     | '/settings'
     | '/doo/$id'
+    | '/pages/$pageId'
     | '/doo/'
+    | '/pages/'
     | '/doo/$id/playground'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -151,7 +171,9 @@ export interface FileRouteTypes {
     | '/secrets'
     | '/settings'
     | '/doo/$id'
+    | '/pages/$pageId'
     | '/doo'
+    | '/pages'
     | '/doo/$id/playground'
   id:
     | '__root__'
@@ -165,7 +187,9 @@ export interface FileRouteTypes {
     | '/secrets'
     | '/settings'
     | '/doo/$id'
+    | '/pages/$pageId'
     | '/doo/'
+    | '/pages/'
     | '/doo/$id_/playground'
   fileRoutesById: FileRoutesById
 }
@@ -179,6 +203,8 @@ export interface RootRouteChildren {
   RequestsRoute: typeof RequestsRoute
   SecretsRoute: typeof SecretsRoute
   SettingsRoute: typeof SettingsRoute
+  PagesPageIdRoute: typeof PagesPageIdRoute
+  PagesIndexRoute: typeof PagesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -246,12 +272,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pages/': {
+      id: '/pages/'
+      path: '/pages'
+      fullPath: '/pages/'
+      preLoaderRoute: typeof PagesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/doo/': {
       id: '/doo/'
       path: '/'
       fullPath: '/doo/'
       preLoaderRoute: typeof DooIndexRouteImport
       parentRoute: typeof DooRoute
+    }
+    '/pages/$pageId': {
+      id: '/pages/$pageId'
+      path: '/pages/$pageId'
+      fullPath: '/pages/$pageId'
+      preLoaderRoute: typeof PagesPageIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/doo/$id': {
       id: '/doo/$id'
@@ -294,6 +334,8 @@ const rootRouteChildren: RootRouteChildren = {
   RequestsRoute: RequestsRoute,
   SecretsRoute: SecretsRoute,
   SettingsRoute: SettingsRoute,
+  PagesPageIdRoute: PagesPageIdRoute,
+  PagesIndexRoute: PagesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

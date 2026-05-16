@@ -4,7 +4,6 @@ import { Modal } from "@/components/ui/Modal";
 import { Textarea } from "@/components/ui/Textarea";
 import { useDooForm } from "@/hooks/useDooForm";
 import { type Doo } from "@doospace/shared";
-import { cn } from "@/lib/cn";
 import { Loader2, Settings2 } from "lucide-react";
 
 interface EditDooModalProps {
@@ -15,9 +14,13 @@ interface EditDooModalProps {
 
 export function EditDooModal({ isOpen, onClose, doo }: EditDooModalProps) {
   const {
-    name, setName,
-    description, setDescription,
-    error, isPending, handleSubmit,
+    name,
+    setName,
+    description,
+    setDescription,
+    error,
+    isPending,
+    handleSubmit,
   } = useDooForm({
     mode: "edit",
     initialData: doo,
@@ -41,7 +44,9 @@ export function EditDooModal({ isOpen, onClose, doo }: EditDooModalProps) {
 
         <div className="space-y-6">
           <div className="space-y-2">
-            <label className="text-[10px] font-bold text-text-muted">Unit Identification</label>
+            <label className="text-[10px] font-bold text-text-muted">
+              Unit Identification
+            </label>
             <Input
               placeholder="e.g. data_aggregator_v1"
               value={name}
@@ -50,23 +55,35 @@ export function EditDooModal({ isOpen, onClose, doo }: EditDooModalProps) {
               autoFocus
               required
             />
-            <p className="text-[10px] font-bold text-text-subtle opacity-50">Unique identifier used for routing and orchestration.</p>
+            <p className="text-[10px] font-bold text-text-subtle opacity-50">
+              Unique identifier used for routing and orchestration.
+            </p>
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-bold text-text-muted">Operational Context</label>
+            <label className="text-[10px] font-bold text-text-muted">
+              Operational Context
+            </label>
             <Textarea
               placeholder="Describe the primary responsibility of this Doo..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="min-h-[100px] py-3 shadow-inner"
             />
-            <p className="text-[10px] font-bold text-text-subtle opacity-50">Optional documentation for team collaboration.</p>
+            <p className="text-[10px] font-bold text-text-subtle opacity-50">
+              Optional documentation for team collaboration.
+            </p>
           </div>
         </div>
 
         <div className="flex items-center justify-end gap-3 pt-6 border-t border-border/30 mt-2">
-          <Button type="button" variant="ghost" size="sm" onClick={onClose} className="rounded-none font-bold text-[10px]">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="rounded-none font-bold text-[10px]"
+          >
             Abort
           </Button>
           <Button
@@ -77,9 +94,9 @@ export function EditDooModal({ isOpen, onClose, doo }: EditDooModalProps) {
             className="gap-2 rounded-none font-black text-[10px] min-w-[140px]"
           >
             {isPending ? (
-               <Loader2 size={12} className="animate-spin" />
+              <Loader2 size={12} className="animate-spin" />
             ) : (
-               <Settings2 size={13} />
+              <Settings2 size={13} />
             )}
             {isPending ? "COMMITTING..." : "SAVE CONFIG"}
           </Button>

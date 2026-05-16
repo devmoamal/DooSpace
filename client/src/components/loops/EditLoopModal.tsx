@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Repeat, Clock, Play, Code, Check, AlertCircle } from "lucide-react";
+import { Clock, Code, Repeat } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { useUpdateLoopMutation } from "@/hooks/queries/useLoops";
@@ -17,9 +17,11 @@ interface EditLoopModalProps {
 
 export function EditLoopModal({ loop, isOpen, onClose }: EditLoopModalProps) {
   const [type, setType] = useState<LoopType>(loop.type);
-  const [intervalMs, setIntervalMs] = useState(loop.interval_ms?.toString() || "5000");
+  const [intervalMs, setIntervalMs] = useState(
+    loop.interval_ms?.toString() || "5000",
+  );
   const [payload, setPayload] = useState(
-    loop.payload ? JSON.stringify(loop.payload, null, 2) : "{}"
+    loop.payload ? JSON.stringify(loop.payload, null, 2) : "{}",
   );
   const [endExpression, setEndExpression] = useState(loop.end_expression || "");
 
@@ -30,7 +32,7 @@ export function EditLoopModal({ loop, isOpen, onClose }: EditLoopModalProps) {
     try {
       // Validate JSON
       const parsedPayload = JSON.parse(payload);
-      
+
       await updateMutation.mutateAsync({
         id: loop.id,
         data: {
@@ -38,7 +40,7 @@ export function EditLoopModal({ loop, isOpen, onClose }: EditLoopModalProps) {
           interval_ms: type === "interval" ? parseInt(intervalMs) : undefined,
           payload: parsedPayload,
           end_expression: endExpression || undefined,
-        }
+        },
       });
 
       toast.success("Loop updated successfully");
@@ -56,19 +58,25 @@ export function EditLoopModal({ loop, isOpen, onClose }: EditLoopModalProps) {
     <Modal isOpen={isOpen} onClose={onClose} title="Edit Loop" maxWidth="lg">
       <div className="space-y-5 pb-2">
         <div className="flex items-center justify-between p-2.5 rounded-none border bg-brand/5 border-brand/30 ring-1 ring-brand/10">
-           <div className="flex items-center gap-3">
-             <div className="w-8 h-8 rounded-none bg-brand text-white flex items-center justify-center shrink-0">
-               <Code size={14} />
-             </div>
-             <div className="min-w-0">
-               <p className="text-[12px] font-medium text-text truncate">Doo #{loop.doo_id}</p>
-               <p className="text-[10px] text-text-subtle truncate">Endpoint: {loop.target_path}</p>
-             </div>
-           </div>
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-none bg-brand text-white flex items-center justify-center shrink-0">
+              <Code size={14} />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[12px] font-medium text-text truncate">
+                Doo #{loop.doo_id}
+              </p>
+              <p className="text-[10px] text-text-subtle truncate">
+                Endpoint: {loop.target_path}
+              </p>
+            </div>
+          </div>
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-[12px] font-medium text-text-muted px-0.5">Trigger Type</label>
+          <label className="text-[12px] font-medium text-text-muted px-0.5">
+            Trigger Type
+          </label>
           <div className="flex bg-surface border border-border rounded p-0.5">
             {(["once", "interval", "event"] as const).map((t) => (
               <button
@@ -76,7 +84,9 @@ export function EditLoopModal({ loop, isOpen, onClose }: EditLoopModalProps) {
                 onClick={() => setType(t)}
                 className={cn(
                   "flex-1 h-7 rounded text-[11px] font-medium transition-all capitalize",
-                  type === t ? "bg-bg text-text shadow-sm" : "text-text-subtle hover:text-text-muted"
+                  type === t
+                    ? "bg-bg text-text shadow-sm"
+                    : "text-text-subtle hover:text-text-muted",
                 )}
               >
                 {t}
@@ -106,7 +116,10 @@ export function EditLoopModal({ loop, isOpen, onClose }: EditLoopModalProps) {
         <LoopPayloadEditor
           payload={payload}
           setPayload={setPayload}
-          requestType={dooRes?.endpoints?.find((ep) => ep.path === loop.target_path)?.request_type}
+          requestType={
+            dooRes?.endpoints?.find((ep) => ep.path === loop.target_path)
+              ?.request_type
+          }
         />
 
         {/* End Expression */}
@@ -125,7 +138,9 @@ export function EditLoopModal({ loop, isOpen, onClose }: EditLoopModalProps) {
 
         {/* Actions */}
         <div className="flex justify-end gap-2 pt-2 border-t border-border/50 mt-2">
-          <Button variant="ghost" size="sm" onClick={onClose}>Cancel</Button>
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            Cancel
+          </Button>
           <Button
             size="sm"
             onClick={handleSave}

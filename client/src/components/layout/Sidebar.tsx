@@ -28,6 +28,7 @@ const sidebarItems = [
     href: "/dashboard",
     section: "Workspace",
   },
+  { icon: FileText, label: "Pages", href: "/pages", section: "Workspace" },
   { icon: Terminal, label: "Doos", href: "/doo", section: "Workspace" },
   {
     icon: Activity,
@@ -37,14 +38,12 @@ const sidebarItems = [
   },
   { icon: Database, label: "DooBox", href: "/doobox", section: "Workspace" },
   { icon: KeyRound, label: "Secrets", href: "/secrets", section: "Workspace" },
-  { icon: Repeat, label: "Loops", href: "/loops", section: "Workspace" },
   {
     icon: Settings,
     label: "Settings",
     href: "/settings",
     section: "Project",
   },
-  { icon: FileText, label: "Docs", href: "/docs", section: "Project" },
 ];
 
 export function Sidebar() {

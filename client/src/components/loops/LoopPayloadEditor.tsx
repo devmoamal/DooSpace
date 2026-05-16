@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/Textarea";
 
 interface LoopPayloadEditorProps {
   payload: string;
-  setPayload: (val: string) => void;
+  setPayload: React.Dispatch<React.SetStateAction<string>>;
   requestType?: string;
 }
 
@@ -104,7 +104,7 @@ export function LoopPayloadEditor({ payload, setPayload, requestType }: LoopPayl
             {["{random_string_10}", "{random_number_12}", "{random_emoji}", "{random_timestamp}", "{random_bool}"].map((token) => (
               <button 
                 key={token}
-                onClick={() => setPayload(prev => prev === "{}" || prev.trim() === "" ? `{\n  "key": "${token}"\n}` : prev.replace("}", `  "new_key": "${token}"\n}`))}
+                onClick={() => setPayload((prev: string) => prev === "{}" || prev.trim() === "" ? `{\n  "key": "${token}"\n}` : prev.replace("}", `  "new_key": "${token}"\n}`))}
                 className="text-[10px] bg-surface-lighter border border-border hover:border-brand/30 px-1.5 py-0.5 rounded-none font-mono text-text-subtle hover:text-brand transition-colors cursor-pointer"
               >
                 {token}

@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
-import { Repeat, Play, Code, ChevronDown, AlertCircle, Loader2 } from "lucide-react";
+import { Play, Code, Loader2 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
-import { IconButton } from "@/components/ui/IconButton";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
-import { Badge } from "@/components/ui/Badge";
 import { useDoosQuery } from "@/hooks/queries/useDoos";
 import { useCreateLoopMutation } from "@/hooks/queries/useLoops";
 import { toast } from "sonner";

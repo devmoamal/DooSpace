@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { 
-  Repeat, Clock, Play, Pause, Trash2, X, Activity, 
+  Repeat, Play, Pause, Trash2, X, Activity, 
   Settings, History, ChevronRight, ChevronDown, Check,
   AlertCircle, Loader2, Terminal, Code
 } from "lucide-react";
