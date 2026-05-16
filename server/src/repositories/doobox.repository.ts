@@ -67,6 +67,38 @@ export class DooBoxRepository {
       );
   }
 
+  async findPaginated(dooId: number, page: number, limit: number) {
+    const offset = (page - 1) * limit;
+
+    const [data, totalResult] = await Promise.all([
+      db
+        .select()
+        .from(dooboxTable)
+        .where(
+          and(
+            eq(dooboxTable.doo_id, dooId),
+            this.expiryFilter
+          )
+        )
+        .limit(limit)
+        .offset(offset),
+      db
+        .select({ value: count() })
+        .from(dooboxTable)
+        .where(
+          and(
+            eq(dooboxTable.doo_id, dooId),
+            this.expiryFilter
+          )
+        ),
+    ]);
+
+    return {
+      data,
+      total: totalResult[0].value,
+    };
+  }
+
   async clear(dooId: number): Promise<void> {
     await db
       .delete(dooboxTable)

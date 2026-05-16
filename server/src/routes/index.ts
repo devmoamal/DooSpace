@@ -8,6 +8,7 @@ import overviewRoutes from "./overview.route";
 import secretsRoutes from "./secrets.route";
 import loopRoute from "./loop.route";
 import aiRoutes from "./ai.route";
+import pagesRoutes from "./pages.route";
 
 const router = new Hono();
 
@@ -20,6 +21,7 @@ router.route("/overview", overviewRoutes);
 router.route("/secrets", secretsRoutes);
 router.route("/loops", loopRoute);
 router.route("/ai", aiRoutes);
+router.route("/pages", pagesRoutes);
 
 export default router;
 

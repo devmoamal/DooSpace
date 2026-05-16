@@ -15,6 +15,10 @@ import {
   AIMessage,
   SystemMessage,
 } from "@langchain/core/messages";
+import { secretsService } from "./secrets.service";
+import { requestService } from "./request.service";
+import { pageService } from "./page.service";
+import { dooboxService } from "./doobox.service";
 
 export class AIService {
   private async getClient() {
@@ -85,68 +89,112 @@ export class AIService {
     }));
   }
 
-  async chat(messages: any[]) {
+  async chat(
+    messages: any[],
+    context?: {
+      page_id?: string;
+      current_code?: { html: string };
+    },
+  ) {
     const model = await this.getClient();
 
     const tools = [
       new DynamicStructuredTool({
-        name: "list_doos",
-        description: "List all Doos with their names, IDs, and descriptions.",
-        schema: z.object({}),
-        func: async (_input: z.infer<z.ZodObject<{}>>) => {
-          const result = await dooService.getAllDoos({ page: 1, limit: 100 });
-          return JSON.stringify(
-            result.data.map((d) => ({
+        name: "read_doo_list",
+        description:
+          "List all Doos with pagination. Returns names, IDs, and descriptions.",
+        schema: z.object({
+          page: z.number().default(1).describe("The page number"),
+          limit: z.number().default(20).describe("Number of items per page"),
+        }),
+        func: async ({ page, limit }: { page: number; limit: number }) => {
+          const result = await dooService.getAllDoos({ page, limit });
+          return JSON.stringify({
+            doos: result.data.map((d) => ({
               id: d.id,
               name: d.name,
               description: d.description,
               active: d.is_active,
             })),
-          );
+            meta: result.meta,
+          });
         },
       }),
       new DynamicStructuredTool({
-        name: "get_doo_source",
-        description: "Get the source code of a specific Doo by ID.",
+        name: "read_doo",
+        description:
+          "Read a specific Doo's code, endpoints, and metadata by ID.",
         schema: z.object({
-          id: z.number().describe("The ID of the Doo to fetch"),
+          id: z.number().describe("The ID of the Doo to read"),
         }),
         func: async ({ id }: { id: number }) => {
           const doo = await dooService.getDooById(id);
-          return JSON.stringify({ name: doo.name, code: doo.code });
+          return JSON.stringify({
+            id: doo.id,
+            name: doo.name,
+            description: doo.description,
+            code: doo.code,
+            endpoints: doo.endpoints,
+            active: doo.is_active,
+          });
         },
       }),
       new DynamicStructuredTool({
         name: "create_doo",
-        description:
-          "Create a new Doo with the provided name and TypeScript code.",
+        description: "Create a new Doo unit.",
         schema: z.object({
           name: z.string().describe("The name of the new Doo"),
+          description: z
+            .string()
+            .optional()
+            .describe("Short description of what it does"),
           code: z.string().describe("The TypeScript code for the Doo"),
         }),
-        func: async ({ name, code }: { name: string; code: string }) => {
+        func: async ({
+          name,
+          description,
+          code,
+        }: {
+          name: string;
+          description?: string;
+          code: string;
+        }) => {
           const result = await dooService.createDoo({
             name,
+            description,
             code,
-            owner_id: 1,
+            owner_id: 1, // Default user
           });
           return `Doo '${name}' created successfully with ID: ${result.id}`;
         },
       }),
       new DynamicStructuredTool({
-        name: "delete_doo",
-        description: "Delete a Doo by its ID.",
+        name: "update_doo",
+        description: "Update an existing Doo's name, description, or code.",
         schema: z.object({
-          id: z.number().describe("The ID of the Doo to delete"),
+          id: z.number().describe("The ID of the Doo to update"),
+          name: z.string().optional().describe("New name"),
+          description: z.string().optional().describe("New description"),
+          code: z.string().optional().describe("New TypeScript code"),
         }),
-        func: async ({ id }: { id: number }) => {
-          await dooService.deleteDoo(id);
-          return `Doo ${id} deleted successfully.`;
+        func: async ({
+          id,
+          name,
+          description,
+          code,
+        }: {
+          id: number;
+          name?: string;
+          description?: string;
+          code?: string;
+        }) => {
+          await dooService.updateDoo(id, { name, description, code });
+          return `Doo ${id} updated successfully.`;
         },
       }),
       new DynamicStructuredTool({
-        name: "execute_doo",
-        description: "Execute a Doo endpoint.",
+        name: "call_doo",
+        description: "Manually execute a Doo endpoint.",
         schema: z.object({
           id: z.number().describe("The ID of the Doo to execute"),
           path: z.string().describe("The path to call (e.g. /)"),
@@ -155,17 +203,7 @@ export class AIService {
             .describe("The HTTP method"),
           body: z.any().optional().describe("The JSON body for the request"),
         }),
-        func: async ({
-          id,
-          path,
-          method,
-          body,
-        }: {
-          id: number;
-          path: string;
-          method: string;
-          body?: any;
-        }) => {
+        func: async ({ id, path, method, body }: any) => {
           const req = new Request(`http://localhost${path}`, {
             method,
             body: body ? JSON.stringify(body) : undefined,
@@ -182,54 +220,115 @@ export class AIService {
         },
       }),
       new DynamicStructuredTool({
-        name: "manage_loops",
-        description: "List or create loops for a Doo.",
+        name: "read_doo_requests",
+        description:
+          "Read recent request logs for a specific Doo with pagination.",
         schema: z.object({
-          action: z.enum(["list", "create"]).describe("Action to perform"),
-          doo_id: z
-            .number()
-            .optional()
-            .describe("Doo ID (required for create)"),
-          target_path: z
-            .string()
-            .optional()
-            .describe("Path to target (required for create)"),
-          interval_ms: z
-            .number()
-            .optional()
-            .describe("Interval in ms (required for create)"),
+          doo_id: z.number().describe("The ID of the Doo"),
+          page: z.number().default(1).describe("The page number"),
+          limit: z.number().default(20).describe("Number of items per page"),
         }),
-        func: async ({
-          action,
-          doo_id,
-          target_path,
-          interval_ms,
-        }: {
-          action: string;
-          doo_id?: number;
-          target_path?: string;
-          interval_ms?: number;
-        }) => {
-          if (action === "list") {
-            const result = await loopService.getAllLoops({
-              page: 1,
-              limit: 100,
-            });
-            return JSON.stringify(result.data);
-          } else {
-            if (!doo_id || !target_path || !interval_ms)
-              return "Missing parameters for create";
-            const result = await loopService.createLoop({
-              doo_id,
-              target_path,
-              interval_ms,
-              type: "interval",
-              status: "active",
-              max_retries: 3,
-              payload: "{}",
-            } as any);
-            return `Loop created with ID: ${result.id}`;
-          }
+        func: async ({ doo_id, page, limit }: any) => {
+          const result = await requestService.getLogsByDooId(doo_id, {
+            page,
+            limit,
+          });
+          return JSON.stringify(result);
+        },
+      }),
+      new DynamicStructuredTool({
+        name: "read_doobox",
+        description:
+          "Read persistent storage (DooBox) for a specific Doo with pagination.",
+        schema: z.object({
+          doo_id: z.number().describe("The ID of the Doo"),
+          page: z.number().default(1).describe("The page number"),
+          limit: z.number().default(20).describe("Number of items per page"),
+        }),
+        func: async ({ doo_id, page, limit }: any) => {
+          const result = await dooboxService.getPaginated(doo_id, {
+            page,
+            limit,
+          });
+          return JSON.stringify(result);
+        },
+      }),
+      new DynamicStructuredTool({
+        name: "read_secrets_list",
+        description:
+          "List names of all configured secrets. Values are not returned for security.",
+        schema: z.object({}),
+        func: async () => {
+          const secrets = await secretsService.list(1);
+          return JSON.stringify(secrets.map((s) => s.name));
+        },
+      }),
+      new DynamicStructuredTool({
+        name: "create_secret",
+        description: "Create or update a secret.",
+        schema: z.object({
+          name: z.string().describe("Secret name (SCREAMING_SNAKE_CASE)"),
+          value: z.string().describe("Secret value"),
+        }),
+        func: async ({ name, value }: any) => {
+          await secretsService.set(1, name, value);
+          return `Secret ${name} saved successfully.`;
+        },
+      }),
+      new DynamicStructuredTool({
+        name: "create_loop",
+        description:
+          "Create an automation loop to run a Doo endpoint on an interval.",
+        schema: z.object({
+          doo_id: z.number().describe("Doo ID to automate"),
+          target_path: z.string().describe("Endpoint path to call"),
+          interval_ms: z.number().describe("Interval in milliseconds"),
+          payload: z.any().optional().describe("JSON payload for the requests"),
+        }),
+        func: async (data: any) => {
+          const result = await loopService.createLoop({
+            ...data,
+            payload: JSON.stringify(data.payload || {}),
+            type: "interval",
+            status: "active",
+            max_retries: 3,
+          } as any);
+          return `Loop created successfully with ID: ${result.id}`;
+        },
+      }),
+      new DynamicStructuredTool({
+        name: "stop_loop",
+        description: "Stop/Pause a running loop.",
+        schema: z.object({
+          loop_id: z.string().describe("The UUID of the loop"),
+        }),
+        func: async ({ loop_id }: { loop_id: string }) => {
+          await loopService.updateLoop(loop_id, { status: "paused" });
+          return `Loop ${loop_id} paused.`;
+        },
+      }),
+      new DynamicStructuredTool({
+        name: "run_loop",
+        description: "Manually trigger a loop execution immediately.",
+        schema: z.object({
+          loop_id: z.string().describe("The UUID of the loop"),
+        }),
+        func: async ({ loop_id }: { loop_id: string }) => {
+          await loopService.triggerLoop(loop_id);
+          return `Loop ${loop_id} triggered. Check logs for results.`;
+        },
+      }),
+      new DynamicStructuredTool({
+        name: "upsert_page_code",
+        description:
+          "Update the UI of the current page. Provide full HTML (including Tailwind CSS via CDN if needed).",
+        schema: z.object({
+          html: z.string().describe("The full HTML content of the page"),
+        }),
+        func: async ({ html }: { html: string }) => {
+          if (!context?.page_id) return "Error: No page context found.";
+          await pageService.updatePageCode(context.page_id, { html });
+          return "Page UI updated successfully.";
         },
       }),
     ];
@@ -237,7 +336,52 @@ export class AIService {
     const prompt = ChatPromptTemplate.fromMessages([
       [
         "system",
-        "You are the DooSpace Orchestrator, an AI agent designed to help users build and manage serverless 'Doos'. You can create, edit, delete, and execute Doos. Use tools to interact with the system. Always be technical and precise.",
+        `You are the DooSpace V0 Architect, an elite AI design and orchestration agent. You build modern, high-performance web applications and serverless backends with surgical precision.
+
+### UI DESIGN (PAGES)
+- Pages use standard HTML.
+- ALWAYS use Tailwind CSS via CDN for styling: <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+- Focus on premium, dark-mode-first, high-fidelity aesthetics.
+- When asked to build a UI, generate the COMPLETE HTML in one go.
+
+### BACKEND LOGIC (DOOS)
+Always use the functional export pattern:
+\`\`\`typescript
+import { doobox, callDoo, secrets } from "doospace";
+
+export default function (doo: Doo) {{
+  doo.get("/", async (req) => {{
+    doo.log("Accessing root");
+    const key = secrets.API_KEY;
+
+    const data = await doobox.get("key");
+    return {{ ok: true, data }};
+  }});
+}}
+\`\`\`
+
+Available Globals:
+- \`secrets\`: \`ANY_CONST_IN_SECRETS\`
+- \`doo\`: \`get/post/put/delete/patch\`, \`log(msg)\`
+- \`doobox\`: \`get(k)\`, \`set(k, v)\`, \`delete(k)\`, \`list()\`
+- \`callDoo\`: \`get(id, path)\`, \`post(id, path, body)\`
+
+### WORKFLOW
+1. If the user asks for a UI, use 'upsert_page_code'.
+2. If the user asks for logic/backend, use 'create_doo' or 'update_doo'.
+3. Use 'call_doo' to test your implementations.
+
+Current Page Context:
+${
+  context?.page_id
+    ? `
+- Page ID: ${context.page_id}
+- Current HTML: ${context.current_code?.html || "Empty"}
+`
+    : "No page context."
+}
+
+Be brief, technical, and prioritize visual excellence.`,
       ],
       new MessagesPlaceholder("chat_history"),
       ["human", "{input}"],

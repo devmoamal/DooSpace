@@ -36,6 +36,21 @@ export class DooBoxService {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
   }
+
+  async getPaginated(dooId: number, query: { page: number; limit: number }) {
+    const { page, limit } = query;
+    const { data, total } = await dooboxRepository.findPaginated(dooId, page, limit);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        lastPage: Math.ceil(total / limit),
+      },
+    };
+  }
 }
 
 export const dooboxService = new DooBoxService();

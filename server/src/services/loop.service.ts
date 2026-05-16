@@ -3,19 +3,25 @@ import { loopLogsRepository } from "@/repositories/loop_logs.repository";
 import { executionService } from "@/services/execution.service";
 import { type Loop, type InsertLoop, type UpdateLoop } from "@/db/types";
 import { NotFoundError } from "@/lib/error";
+import { LoopStatus } from "@doospace/shared";
 
 function processPayload(payload: any): string {
   let str = JSON.stringify(payload || {});
-  
+
   str = str.replace(/\{random_string_(\d+)\}/g, (_, length) => {
     const len = Math.min(parseInt(length) || 10, 100);
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    return Array.from({length: len}, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
+    const chars =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    return Array.from({ length: len }, () =>
+      chars.charAt(Math.floor(Math.random() * chars.length)),
+    ).join("");
   });
-  
+
   str = str.replace(/\{random_number_(\d+)\}/g, (_, length) => {
     const len = Math.min(parseInt(length) || 5, 20);
-    return Math.floor(Math.random() * Math.pow(10, len)).toString().padStart(len, '0');
+    return Math.floor(Math.random() * Math.pow(10, len))
+      .toString()
+      .padStart(len, "0");
   });
 
   str = str.replace(/\{random_emoji\}/g, () => {
@@ -25,7 +31,7 @@ function processPayload(payload: any): string {
 
   str = str.replace(/\{random_timestamp\}/g, () => Date.now().toString());
   str = str.replace(/\{random_bool\}/g, () => (Math.random() > 0.5).toString());
-  
+
   return str;
 }
 
@@ -47,7 +53,10 @@ export class LoopService {
 
   async getLoopLogs(id: string, query: { page: number; limit: number }) {
     const { page, limit } = query;
-    const { data, total } = await loopLogsRepository.findPaginated({ ...query, loop_id: id });
+    const { data, total } = await loopLogsRepository.findPaginated({
+      ...query,
+      loop_id: id,
+    });
 
     return {
       data,
@@ -67,7 +76,10 @@ export class LoopService {
   }
 
   async createLoop(data: InsertLoop) {
-    const nextRun = data.type === 'once' ? new Date() : this.calculateNextRun(data.type, data.interval_ms);
+    const nextRun =
+      data.type === "once"
+        ? new Date()
+        : this.calculateNextRun(data.type, data.interval_ms);
     return await loopRepository.create({
       ...data,
       next_run_at: nextRun,
@@ -101,16 +113,16 @@ export class LoopService {
         loop.doo_id,
         "POST", // Loops always call via POST or the designated endpoint
         loop.target_path,
-        mockRequest
+        mockRequest,
       );
 
       const responseText = await response.text();
       const duration = Date.now() - startTime;
-      
+
       // Update last run and calculate next run
       const nextRun = this.calculateNextRun(loop.type, loop.interval_ms);
-      
-      let newStatus = loop.status;
+
+      let newStatus: LoopStatus = loop.status;
       if (loop.type === "once") newStatus = "paused";
 
       await loopRepository.update(loop.id, {
@@ -131,7 +143,7 @@ export class LoopService {
       if (loop.end_expression) {
         try {
           const resJson = JSON.parse(responseText);
-          const fn = new Function('res', `return ${loop.end_expression}`);
+          const fn = new Function("res", `return ${loop.end_expression}`);
           if (fn(resJson)) {
             await loopRepository.update(loop.id, { status: "paused" });
           }
@@ -142,14 +154,13 @@ export class LoopService {
           }
         }
       }
-
     } catch (err: any) {
       console.error(`Loop ${id} failed:`, err);
       const duration = Date.now() - startTime;
-      
+
       const newRetries = loop.retries + 1;
       const status = newRetries >= loop.max_retries ? "failed" : "active";
-      
+
       await loopRepository.update(loop.id, {
         retries: newRetries,
         status,
@@ -165,7 +176,10 @@ export class LoopService {
     }
   }
 
-  private calculateNextRun(type: string, interval_ms?: number | null): Date | null {
+  private calculateNextRun(
+    type: string,
+    interval_ms?: number | null,
+  ): Date | null {
     if (type === "once") return null;
     if (type === "interval" && interval_ms) {
       return new Date(Date.now() + interval_ms);
