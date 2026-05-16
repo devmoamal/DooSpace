@@ -1,6 +1,7 @@
 import { type Method } from "@doospace/shared";
 import { DooBox } from "./doobox";
 import { DooSecrets } from "./secrets";
+import { DooExecutionError } from "./errors";
 
 // Trace event colors
 export type TraceColor = "log" | "error" | "db" | "fetch" | "call" | "brand" | "purple";
@@ -174,8 +175,7 @@ export class Doo {
           if (result instanceof Response) return result;
           return this.json(result);
         } catch (e: any) {
-          this.error(e.message);
-          return new Response(e.message, { status: 500 });
+          throw new DooExecutionError(e.message);
         }
       }
     }
