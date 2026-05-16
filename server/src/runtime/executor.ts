@@ -1,6 +1,12 @@
 import { Doo } from "./context";
 import { dooRepository } from "@/repositories/doo.repository";
 import { secretsRepository } from "@/repositories/secrets.repository";
+import {
+  RuntimeError,
+  SandboxError,
+  TranspilationError,
+  DooError,
+} from "./errors";
 
 // ── DooCallClient — callable class for Doo-to-Doo routing ───────────────────
 // Usage: callDoo.get(13, "/users")
@@ -46,10 +52,16 @@ export async function executeDoo(
   secretsMap: Record<string, string> = {},
 ) {
   const transpiler = new Bun.Transpiler({ loader: "ts", target: "node" });
+  const doo = new Doo(dooId, secretsMap);
 
   try {
     // 1. Transpile TypeScript → JS
-    let jsCode = transpiler.transformSync(code);
+    let jsCode: string;
+    try {
+      jsCode = transpiler.transformSync(code);
+    } catch (e: any) {
+      throw new TranspilationError(e.message);
+    }
 
     // 2. ESM → CJS
     jsCode = jsCode.replace(
@@ -63,7 +75,6 @@ export async function executeDoo(
     jsCode = jsCode.replace(/export\s+default\s+/g, "exports.default = ");
 
     // 3. Build sandbox objects
-    const doo        = new Doo(dooId, secretsMap);
     const doobox     = doo.doobox;
     const secrets    = doo.secrets.asProxy();
     const callDoo    = new DooCallClient((color) => doo._trace(color));
@@ -99,7 +110,10 @@ export async function executeDoo(
       try {
         ${jsCode}
       } catch (e) {
-        throw new Error("Runtime Error: " + e.message);
+        const err = new Error(e.message);
+        err.name = "RuntimeError";
+        err.stack = e.stack;
+        throw err;
       }
 
       return typeof exports.default === 'function'
@@ -107,17 +121,29 @@ export async function executeDoo(
         : module.exports.default;
     `;
 
-    const dooFactory  = new Function("_doo", "_doobox", "_secrets", "_callDoo", wrapper);
-    const dooFunction = dooFactory(doo, doobox, secrets, callDoo);
+    let dooFunction: any;
+    try {
+      const dooFactory  = new Function("_doo", "_doobox", "_secrets", "_callDoo", wrapper);
+      dooFunction = dooFactory(doo, doobox, secrets, callDoo);
+    } catch (e: any) {
+      if (e.name === "RuntimeError") {
+        throw new RuntimeError(e.message, e.stack);
+      }
+      throw new SandboxError(e.message);
+    }
 
     if (typeof dooFunction !== "function") {
-      throw new Error(
+      throw new SandboxError(
         "Doo must export a default function, e.g.:\n" +
         "export default function(doo) { doo.get('/', () => ({ ok: true })); }"
       );
     }
 
-    dooFunction(doo);
+    try {
+      dooFunction(doo);
+    } catch (e: any) {
+      throw new RuntimeError(e.message, e.stack);
+    }
 
     const startTime = Date.now();
     const response  = await doo.run(method, path, originalRequest);
@@ -126,12 +152,23 @@ export async function executeDoo(
     return { response, duration, ...doo.getResults() };
 
   } catch (e: any) {
-    const errDoo = new Doo(dooId);
-    errDoo.error(e.message);
+    const errorType = e instanceof DooError ? e.type : "unknown";
+    const status = errorType === "runtime" ? 500 : 400; // Transpilation/Sandbox are client errors (bad code)
+
+    doo.error(`[${errorType.toUpperCase()}] ${e.message}`);
+    if (e instanceof RuntimeError && e.stackTrace) {
+      // Potentially log stack trace to server logs, but maybe not to client yet
+      console.error(e.stackTrace);
+    }
+
     return {
-      response: new Response(e.message, { status: 500 }),
+      response: Response.json({
+        error: true,
+        type: errorType,
+        message: e.message,
+      }, { status }),
       duration: 0,
-      ...errDoo.getResults(),
+      ...doo.getResults(),
     };
   }
 }
