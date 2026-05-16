@@ -8,7 +8,7 @@ This file is maintained by `improve.sh`. Each loop picks the **first unchecked i
 
 ## Queue
 
-- [ ] **refactor/runtime-error-handling** — Harden `executor.ts`: wrap sandbox execution with structured error types, distinguish transpilation errors from runtime errors, and surface cleaner error messages to the client.
+- [x] **refactor/runtime-error-handling** — Harden `executor.ts`: wrap sandbox execution with structured error types, distinguish transpilation errors from runtime errors, and surface cleaner error messages to the client.
 - [ ] **refactor/parser-robustness** — Improve `lib/parser.ts` regex to handle multi-line route registrations, template literals in paths, and edge cases like trailing commas.
 - [ ] **cleanup/dead-test-files** — Remove `test_loops.ts` and `test_transpilation.ts` from `server/src/` (they are one-off scripts that should not live in src; move to a dedicated `scripts/` or delete if obsolete).
 - [ ] **refactor/repository-consistency** — Audit all repositories to ensure consistent error handling, naming conventions, and that all methods follow the same return-type patterns.

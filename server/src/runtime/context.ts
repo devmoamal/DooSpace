@@ -1,6 +1,7 @@
 import { type Method } from "@doospace/shared";
 import { DooBox } from "./doobox";
 import { DooSecrets } from "./secrets";
+import { isDevelopment } from "@/config/env.config";
 
 // Trace event colors
 export type TraceColor = "log" | "error" | "db" | "fetch" | "call" | "brand" | "purple";
@@ -175,7 +176,12 @@ export class Doo {
           return this.json(result);
         } catch (e: any) {
           this.error(e.message);
-          return new Response(e.message, { status: 500 });
+          return this.json({
+            ok: false,
+            message: e.message,
+            error: "SERVER_ERROR",
+            ...(isDevelopment && { stack: e.stack })
+          }, 500);
         }
       }
     }
