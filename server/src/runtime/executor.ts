@@ -1,6 +1,13 @@
 import { Doo } from "./context";
 import { dooRepository } from "@/repositories/doo.repository";
 import { secretsRepository } from "@/repositories/secrets.repository";
+import {
+  RuntimeExecutionError,
+  TranspilationError,
+  SandboxError,
+  DooExportError,
+} from "./errors";
+import { isDevelopment } from "@/config/env.config";
 
 // ── DooCallClient — callable class for Doo-to-Doo routing ───────────────────
 // Usage: callDoo.get(13, "/users")
@@ -46,10 +53,16 @@ export async function executeDoo(
   secretsMap: Record<string, string> = {},
 ) {
   const transpiler = new Bun.Transpiler({ loader: "ts", target: "node" });
+  const doo = new Doo(dooId, secretsMap);
 
   try {
     // 1. Transpile TypeScript → JS
-    let jsCode = transpiler.transformSync(code);
+    let jsCode;
+    try {
+      jsCode = transpiler.transformSync(code);
+    } catch (e: any) {
+      throw new TranspilationError(e.message);
+    }
 
     // 2. ESM → CJS
     jsCode = jsCode.replace(
@@ -63,7 +76,6 @@ export async function executeDoo(
     jsCode = jsCode.replace(/export\s+default\s+/g, "exports.default = ");
 
     // 3. Build sandbox objects
-    const doo        = new Doo(dooId, secretsMap);
     const doobox     = doo.doobox;
     const secrets    = doo.secrets.asProxy();
     const callDoo    = new DooCallClient((color) => doo._trace(color));
@@ -99,7 +111,9 @@ export async function executeDoo(
       try {
         ${jsCode}
       } catch (e) {
-        throw new Error("Runtime Error: " + e.message);
+        const err = new Error(e.message);
+        err.stack = e.stack;
+        throw err;
       }
 
       return typeof exports.default === 'function'
@@ -107,17 +121,32 @@ export async function executeDoo(
         : module.exports.default;
     `;
 
-    const dooFactory  = new Function("_doo", "_doobox", "_secrets", "_callDoo", wrapper);
-    const dooFunction = dooFactory(doo, doobox, secrets, callDoo);
-
-    if (typeof dooFunction !== "function") {
-      throw new Error(
-        "Doo must export a default function, e.g.:\n" +
-        "export default function(doo) { doo.get('/', () => ({ ok: true })); }"
-      );
+    let dooFactory;
+    try {
+      dooFactory = new Function("_doo", "_doobox", "_secrets", "_callDoo", wrapper);
+    } catch (e: any) {
+      throw new SandboxError(`Failed to construct sandbox: ${e.message}`);
     }
 
-    dooFunction(doo);
+    let dooFunction;
+    try {
+      dooFunction = dooFactory(doo, doobox, secrets, callDoo);
+    } catch (e: any) {
+      if (e.message.includes("is not available in the Doo sandbox")) {
+        throw new SandboxError(e.message);
+      }
+      throw new RuntimeExecutionError(e.message, e.stack);
+    }
+
+    if (typeof dooFunction !== "function") {
+      throw new DooExportError();
+    }
+
+    try {
+      dooFunction(doo);
+    } catch (e: any) {
+      throw new RuntimeExecutionError(`Initialization Error: ${e.message}`, e.stack);
+    }
 
     const startTime = Date.now();
     const response  = await doo.run(method, path, originalRequest);
@@ -126,12 +155,25 @@ export async function executeDoo(
     return { response, duration, ...doo.getResults() };
 
   } catch (e: any) {
-    const errDoo = new Doo(dooId);
-    errDoo.error(e.message);
+    const status = e.status || 500;
+    const errorCode = e.code || "SERVER_ERROR";
+    
+    doo.error(e.message);
+    
+    const errorBody = {
+      ok: false,
+      message: e.message,
+      error: errorCode,
+      ...(isDevelopment && { stack: e.stack })
+    };
+
     return {
-      response: new Response(e.message, { status: 500 }),
+      response: new Response(JSON.stringify(errorBody), { 
+        status,
+        headers: { "Content-Type": "application/json" }
+      }),
       duration: 0,
-      ...errDoo.getResults(),
+      ...doo.getResults(),
     };
   }
 }
