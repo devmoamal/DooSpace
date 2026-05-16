@@ -6,3 +6,4 @@ export * from "./users.schema";
 export * from "./secrets.schema";
 export * from "./loops.schema";
 export * from "./loop_logs.schema";
+export * from "./pages.schema";
